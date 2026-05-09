@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "813854104706",
+    "project_id": "isufst-gso-portal",
+    "storage_bucket": "isufst-gso-portal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:813854104706:android:8f921e4c903444990b289b",
+        "android_client_info": {
+          "package_name": "com.isufst.mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfgDGHoL8m4jMUV9MC-ksc_Xt1XVOwjKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

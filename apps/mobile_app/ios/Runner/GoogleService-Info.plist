@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDXvkJsyWnnZD_35KR71hDt6CQ0Iw-X9HY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>813854104706</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.isufst.mobileApp</string>
+	<key>PROJECT_ID</key>
+	<string>isufst-gso-portal</string>
+	<key>STORAGE_BUCKET</key>
+	<string>isufst-gso-portal.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:813854104706:ios:ae8439fbef9959f20b289b</string>
+</dict>
+</plist>
