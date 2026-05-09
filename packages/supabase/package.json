@@ -1,0 +1,9 @@
+{
+  "name": "@gso/supabase",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Supabase migrations, seed data, edge functions, and generated TypeScript types",
+  "scripts": {
+    "generate-types": "supabase gen types typescript --local > types/database.types.ts"
+  }
+}
