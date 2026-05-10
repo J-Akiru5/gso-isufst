@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Moon, Sun, Bell, LogOut, User, Settings, Monitor } from 'lucide-react'
+import { Moon, Sun, Bell, LogOut, User, Settings, Monitor, Smartphone } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -51,6 +51,19 @@ export function DashboardHeader({ profile, roles }: DashboardHeaderProps) {
 
       {/* Right — actions */}
       <div className="flex items-center gap-2">
+        {/* Mobile App Download */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8"
+          asChild
+          title="Download Mobile App"
+        >
+          <a href="#" target="_blank" rel="noopener noreferrer">
+            <Smartphone size={16} />
+          </a>
+        </Button>
+
         {/* Theme toggle */}
         <DropdownMenu>
           <DropdownMenuTrigger>

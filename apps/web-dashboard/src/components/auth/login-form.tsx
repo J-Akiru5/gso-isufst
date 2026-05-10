@@ -151,15 +151,40 @@ export function LoginForm() {
       </Button>
 
       {/* Register link */}
-      <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{' '}
-        <Link
-          href="/register"
-          className="font-medium text-primary hover:underline"
-        >
-          Request access
-        </Link>
-      </p>
+      <div className="space-y-4">
+        <p className="text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{' '}
+          <Link
+            href="/register"
+            className="font-medium text-primary hover:underline"
+          >
+            Request access
+          </Link>
+        </p>
+
+        <div className="pt-4 border-t">
+          <Button 
+            variant="outline" 
+            className="w-full h-11 border-dashed hover:border-primary hover:bg-primary/5 transition-all group"
+            asChild
+          >
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              <div className="flex items-center justify-center gap-2">
+                <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/10 transition-colors">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                    <path d="M12 18h.01" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <p className="text-xs font-semibold leading-tight">Download Mobile App</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">v1.0.0 (Android APK)</p>
+                </div>
+              </div>
+            </a>
+          </Button>
+        </div>
+      </div>
     </form>
   )
 }

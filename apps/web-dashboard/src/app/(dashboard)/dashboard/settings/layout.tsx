@@ -28,6 +28,10 @@ const sidebarNavItems = [
     title: "Categories",
     href: "/dashboard/settings/categories",
   },
+  {
+    title: "Mobile App",
+    href: "/dashboard/settings/mobile",
+  },
 ]
 
 interface SettingsLayoutProps {
