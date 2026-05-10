@@ -14,6 +14,7 @@ import {
   Settings,
   BarChart3,
   Bell,
+  ChevronLeft,
   ChevronRight,
   CheckCircle2,
 } from 'lucide-react'
