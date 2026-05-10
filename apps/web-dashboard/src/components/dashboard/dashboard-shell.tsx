@@ -19,6 +19,8 @@ import {
   CheckCircle2,
   User,
   Calendar,
+  Truck,
+  Map,
 } from 'lucide-react'
 import { RealtimeClock } from './realtime-clock'
 
@@ -74,6 +76,17 @@ const NAV_ITEMS: NavItem[] = [
     href: '/dashboard/settings/users',
     icon: Users,
     roles: ['super_admin', 'gso_staff'],
+  },
+  {
+    title: 'Fleet Management',
+    href: '/dashboard/fleet',
+    icon: Truck,
+    roles: ['super_admin', 'gso_staff'],
+  },
+  {
+    title: 'Travel Requests',
+    href: '/dashboard/travel',
+    icon: Map,
   },
   {
     title: 'My Profile',
