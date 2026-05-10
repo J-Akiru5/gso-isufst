@@ -58,10 +58,10 @@ ON CONFLICT (name) DO NOTHING;
 
 -- ── Default Buildings (Dingle Campus) ────────────────────────
 INSERT INTO buildings (name, code, description) VALUES
-  ('College of Agriculture',                    'CA',      'Agriculture department building'),
+  ('College of Agriculture',                    'CoAg',      'Agriculture department building'),
   ('College of Information and Communications Technology', 'CICT', 'ICT department building'),
   ('College of Hospitality Management',         'CHM',     'Hospitality management department building'),
-  ('College of Education',                      'CED',     'Education department building'),
+  ('College of Education',                      'CoED',     'Education department building'),
   ('Administration Building',                   'ADMIN',   'Houses MIS, Supply, Procurement, Research and Development, and Campus Administrator offices'),
   ('Knowledge Management Hub',                  'KMH',     'Library and knowledge services'),
   ('Clinic',                                    'CLIN',    'Campus health services'),
@@ -75,10 +75,10 @@ ON CONFLICT (code) DO NOTHING;
 
 -- ── Default Departments ────────────────────────────────────────
 INSERT INTO departments (name, code, description) VALUES
-  ('College of Agriculture',                    'CA',    'Agricultural programs'),
+  ('College of Agriculture',                    'CoAg',    'Agricultural programs'),
   ('College of Information and Communications Technology', 'CICT', 'Information and communications technology programs'),
   ('College of Hospitality Management',         'CHM',   'Hospitality management programs'),
-  ('College of Education',                      'CED',   'Teacher education and related programs'),
+  ('College of Education',                      'CoED',   'Teacher education and related programs'),
   ('Supply Office',                             'SUP',   'Supply and materials management'),
   ('Procurement Office',                        'PROC',  'Procurement and purchasing operations'),
   ('Research and Development Office',           'RDO',   'Research and development coordination'),

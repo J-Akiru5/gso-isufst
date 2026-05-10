@@ -20,7 +20,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Edit2, Trash2 } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Plus, Edit2, Trash2, User } from "lucide-react"
 import { toast } from "sonner"
 
 export function DepartmentsSettingsClient() {
@@ -32,23 +39,39 @@ export function DepartmentsSettingsClient() {
   const [code, setCode] = React.useState("")
   const [name, setName] = React.useState("")
   const [description, setDescription] = React.useState("")
+  const [headId, setHeadId] = React.useState<string | null>(null)
 
   const fetchDepartments = async () => {
     const { data, error } = await supabase
       .from("departments")
-      .select("*")
+      .select(`
+        *,
+        profiles ( full_name )
+      `)
       .order("name", { ascending: true })
     if (error) throw error
     return data
   }
 
+  const fetchUsers = async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .eq("is_approved", true)
+      .order("full_name")
+    if (error) throw error
+    return data
+  }
+
   const { data: departments, error, isLoading, mutate } = useSWR("admin-departments", fetchDepartments)
+  const { data: users } = useSWR("approved-users", fetchUsers)
 
   const handleOpenEdit = (dept: any) => {
     setEditingId(dept.id)
     setCode(dept.code)
     setName(dept.name)
     setDescription(dept.description || "")
+    setHeadId(dept.head_id)
     setIsOpen(true)
   }
 
@@ -57,6 +80,7 @@ export function DepartmentsSettingsClient() {
     setCode("")
     setName("")
     setDescription("")
+    setHeadId(null)
     setIsOpen(true)
   }
 
@@ -67,17 +91,24 @@ export function DepartmentsSettingsClient() {
     }
 
     try {
+      const payload = { 
+        code, 
+        name, 
+        description,
+        head_id: headId === "none" ? null : headId 
+      }
+
       if (editingId) {
         const { error } = await supabase
           .from("departments")
-          .update({ code, name, description })
+          .update(payload)
           .eq("id", editingId)
         if (error) throw error
         toast.success("Department updated successfully")
       } else {
         const { error } = await supabase
           .from("departments")
-          .insert({ code, name, description })
+          .insert(payload)
         if (error) throw error
         toast.success("Department added successfully")
       }
@@ -106,7 +137,7 @@ export function DepartmentsSettingsClient() {
     }
   }
 
-  if (error) return <div className="text-red-500">Failed to load departments</div>
+  if (error) return <div className="text-red-500 p-4">Failed to load departments</div>
 
   return (
     <div className="space-y-4">
@@ -144,6 +175,22 @@ export function DepartmentsSettingsClient() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="head">Head of Department</Label>
+                <Select value={headId || "none"} onValueChange={setHeadId}>
+                  <SelectTrigger id="head">
+                    <SelectValue placeholder="Select an HOD" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No HOD assigned</SelectItem>
+                    {users?.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea 
                   id="description" 
@@ -167,6 +214,7 @@ export function DepartmentsSettingsClient() {
             <TableRow>
               <TableHead>Code</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Head of Department</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -177,13 +225,14 @@ export function DepartmentsSettingsClient() {
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-5 w-[80px]" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-[200px]" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-[250px]" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-[150px]" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-[200px]" /></TableCell>
                   <TableCell className="text-right"><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
                 </TableRow>
               ))
             ) : departments?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
                   No departments defined
                 </TableCell>
               </TableRow>
@@ -192,8 +241,16 @@ export function DepartmentsSettingsClient() {
                 <TableRow key={dept.id}>
                   <TableCell className="font-medium">{dept.code}</TableCell>
                   <TableCell>{dept.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{dept.description || "-"}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <User className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>{dept.profiles?.full_name || "Unassigned"}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground line-clamp-1 max-w-[300px]">
+                    {dept.description || "-"}
+                  </TableCell>
+                  <TableCell className="text-right whitespace-nowrap">
                     <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(dept)}>
                       <Edit2 className="h-4 w-4" />
                       <span className="sr-only">Edit</span>
