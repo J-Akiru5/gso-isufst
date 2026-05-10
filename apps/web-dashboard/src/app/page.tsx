@@ -16,13 +16,23 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-slate-950/50 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between h-20 items-center">
-            <div className="flex items-center gap-4 group cursor-pointer">
-              <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-indigo-500/20 ring-1 ring-white/10 group-hover:shadow-indigo-500/40 transition-all duration-300">
-                <Image src="/assets/GSO.png" alt="GSO Logo" fill className="object-cover" />
+            <div className="flex items-center gap-6 group cursor-pointer">
+              <div className="flex items-center -space-x-3">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/10 shadow-xl z-20 bg-slate-900">
+                  <Image src="/assets/ISUFST_LOGO.png" alt="ISUFST Logo" fill className="object-contain p-1" />
+                </div>
+                <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/10 shadow-xl z-10 bg-slate-900">
+                  <Image src="/assets/GSO.png" alt="GSO Logo" fill className="object-cover" />
+                </div>
               </div>
-              <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                ISUFST GSO
-              </span>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg leading-tight tracking-tight text-white">
+                  ISUFST GSO
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-indigo-400 font-semibold">
+                  Dingle Campus
+                </span>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -35,6 +45,7 @@ export default function LandingPage() {
           </div>
         </div>
       </nav>
+
 
       <main className="relative z-10 pt-32 pb-20 lg:pt-48 lg:pb-32">
         {/* Hero Section */}
@@ -149,10 +160,14 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/5 bg-slate-950/80 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-            <Image src="/assets/GSO.png" alt="GSO Logo" width={24} height={24} className="grayscale brightness-200" />
-            <span className="font-medium text-sm text-slate-300">ISUFST GSO</span>
+          <div className="flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity">
+            <div className="flex items-center -space-x-2">
+              <Image src="/assets/ISUFST_LOGO.png" alt="ISUFST Logo" width={24} height={24} className="grayscale brightness-200" />
+              <Image src="/assets/GSO.png" alt="GSO Logo" width={24} height={24} className="grayscale brightness-200" />
+            </div>
+            <span className="font-medium text-sm text-slate-300">ISUFST GSO • Dingle Campus</span>
           </div>
+
           <div className="text-sm text-slate-500 font-light text-center md:text-left">
             © {new Date().getFullYear()} Iloilo State University of Fisheries Science and Technology - Dingle Campus.
           </div>
