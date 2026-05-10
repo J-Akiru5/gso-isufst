@@ -21,8 +21,7 @@ export default async function ProfilePage() {
     .from('profiles')
     .select(`
       *,
-      departments ( name ),
-      user_roles ( roles ( display_name, name ) )
+      departments ( name )
     `)
     .eq('id', user.id)
     .single()
@@ -31,5 +30,15 @@ export default async function ProfilePage() {
     redirect('/login')
   }
 
-  return <ProfileClient initialProfile={profile as any} />
+  const { data: userRoles } = await supabase
+    .from('user_roles')
+    .select('roles(display_name, name)')
+    .eq('user_id', user.id)
+
+  const profileWithRoles = {
+    ...profile,
+    user_roles: userRoles || []
+  }
+
+  return <ProfileClient initialProfile={profileWithRoles as any} />
 }

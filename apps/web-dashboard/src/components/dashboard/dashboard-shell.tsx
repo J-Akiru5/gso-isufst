@@ -64,7 +64,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     title: 'Users',
-    href: '/dashboard/users',
+    href: '/dashboard/settings/users',
     icon: Users,
     roles: ['super_admin', 'gso_staff'],
   },

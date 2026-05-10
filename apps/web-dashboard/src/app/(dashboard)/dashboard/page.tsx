@@ -148,7 +148,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Open Requests', value: openRequests || 0, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-          { label: 'Active Loans', value: activeLoans || 0, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+          { label: 'Active Borrows', value: activeLoans || 0, color: 'text-blue-500', bg: 'bg-blue-500/10' },
           { label: 'Overdue Items', value: overdueItems || 0, color: 'text-red-500', bg: 'bg-red-500/10' },
           { label: 'Pending Approvals', value: totalPending || 0, color: 'text-purple-500', bg: 'bg-purple-500/10' },
         ].map((kpi) => (

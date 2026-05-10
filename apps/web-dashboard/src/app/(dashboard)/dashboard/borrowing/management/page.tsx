@@ -43,13 +43,12 @@ export default async function LoanManagementPage({
   if (!user) redirect('/login')
 
   // Check user role (only GSO or Admin)
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*, user_roles(roles(name))')
-    .eq('id', user.id)
-    .single()
-  
-  const roles = profile?.user_roles?.map((ur: any) => ur.roles.name) || []
+  const { data: userRolesData } = await supabase
+    .from('user_roles')
+    .select('roles(name)')
+    .eq('user_id', user.id)
+
+  const roles = (userRolesData as any[])?.map((ur) => ur.roles?.name).filter(Boolean) ?? []
   const isGSO = roles.includes('gso_staff') || roles.includes('super_admin')
 
   if (!isGSO) redirect('/dashboard')
