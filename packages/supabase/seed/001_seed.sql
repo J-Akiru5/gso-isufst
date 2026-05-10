@@ -58,26 +58,30 @@ ON CONFLICT (name) DO NOTHING;
 
 -- ── Default Buildings (Dingle Campus) ────────────────────────
 INSERT INTO buildings (name, code, description) VALUES
-  ('Administration Building',           'ADMIN',   'Main administrative offices'),
-  ('College of Information and Computing Technology', 'CICT', 'IT and computing classrooms'),
-  ('College of Agriculture',            'CA',      'Agriculture and related programs'),
-  ('College of Engineering and Technology', 'CET', 'Engineering labs and workshops'),
-  ('Library',                           'LIB',     'University library'),
-  ('Gymnasium',                         'GYM',     'Sports and events hall'),
-  ('Dormitory A',                       'DORMA',   'Student dormitory A'),
-  ('Dormitory B',                       'DORMB',   'Student dormitory B'),
-  ('GSO Building',                      'GSO',     'General Services Office'),
-  ('Canteen',                           'CAN',     'University canteen')
+  ('College of Agriculture',                    'CA',      'Agriculture department building'),
+  ('College of Information and Communications Technology', 'CICT', 'ICT department building'),
+  ('College of Hospitality Management',         'CHM',     'Hospitality management department building'),
+  ('College of Education',                      'CED',     'Education department building'),
+  ('Administration Building',                   'ADMIN',   'Houses MIS, Supply, Procurement, Research and Development, and Campus Administrator offices'),
+  ('Knowledge Management Hub',                  'KMH',     'Library and knowledge services'),
+  ('Clinic',                                    'CLIN',    'Campus health services'),
+  ('Cultural Center',                           'CULT',    'Cultural and student activities venue'),
+  ('Stage',                                     'STAGE',   'Performance and event stage'),
+  ('GSO Shop',                                  'GSO_SHOP', 'General Services Office shop and support area'),
+  ('Garage',                                    'GAR',     'Vehicle and equipment garage'),
+  ('Cooperative',                               'COOP',    'Canteen and cooperative services'),
+  ('PTEA Hall',                                 'PTEA',    'Events and assembly hall')
 ON CONFLICT (code) DO NOTHING;
 
 -- ── Default Departments ────────────────────────────────────────
 INSERT INTO departments (name, code, description) VALUES
-  ('General Services Office',                   'GSO',   'Campus facilities and asset management'),
-  ('College of Information and Computing Technology', 'CICT', 'IT and computing programs'),
   ('College of Agriculture',                    'CA',    'Agricultural programs'),
-  ('College of Engineering and Technology',     'CET',   'Engineering programs'),
-  ('Office of the University President',        'OUP',   'University leadership'),
-  ('Human Resources',                           'HR',    'Personnel and employment'),
-  ('Finance Office',                            'FIN',   'Budget and finance'),
-  ('Academic Affairs',                          'AA',    'Curriculum and academics')
+  ('College of Information and Communications Technology', 'CICT', 'Information and communications technology programs'),
+  ('College of Hospitality Management',         'CHM',   'Hospitality management programs'),
+  ('College of Education',                      'CED',   'Teacher education and related programs'),
+  ('Supply Office',                             'SUP',   'Supply and materials management'),
+  ('Procurement Office',                        'PROC',  'Procurement and purchasing operations'),
+  ('Research and Development Office',           'RDO',   'Research and development coordination'),
+  ('MIS Office',                                'MIS',   'Management information systems and IT support'),
+  ('Office of Campus Administrator',            'OCA',   'Campus administration and operations')
 ON CONFLICT (name) DO NOTHING;

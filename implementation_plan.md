@@ -555,28 +555,34 @@ Supabase Realtime subscription on `maintenance_timeline` pushes new entries to a
 
 > **Goal**: Full admin configurability + dark mode + final polish.
 
-#### Super Admin Settings (`/settings`)
-- **Role Management**: CRUD roles, assign permissions
-- **User Management**: Approve/reject registrations, assign roles, deactivate users
-- **Maintenance Categories**: Add/edit/delete/toggle active
-- **Inventory Categories**: Add/edit/delete/toggle active
-- **Buildings & Rooms**: CRUD locations
-- **Departments**: CRUD departments, assign heads
-- **System Settings**: App name, notifications toggle, etc.
+#### Super Admin Settings (`/dashboard/settings`)
+We will create a centralized settings hub with a sidebar layout for managing the master data of the system.
+- **Roles & Permissions (`/settings/roles`)**:
+  - View, create, and edit roles (`roles` table).
+- **User Management (`/settings/users`)**:
+  - View all user profiles (`profiles` table).
+  - Approve pending registrations.
+  - Assign roles to users (`user_roles` table).
+  - Deactivate users.
+- **Departments (`/settings/departments`)**:
+  - View, add, edit departments (`departments` table).
+  - Assign a Head of Department (HOD).
+- **Locations (`/settings/locations`)**:
+  - Manage Buildings (`buildings` table) and Rooms (`rooms` table).
+- **Categories (`/settings/categories`)**:
+  - Manage Maintenance Categories (`maintenance_categories` table).
+  - Manage Inventory Categories (`inventory_categories` table).
 
-#### Dark Mode
-- Tailwind dark mode with `class` strategy
-- Theme toggle in header (Light / Dark / System)
-- All components use CSS variables mapped to dark variants
-- Flutter: `ThemeData` with dark/light variants from design tokens
+#### Dark Mode Implementation
+- Configure `next-themes` to support system/light/dark modes.
+- Implement a theme toggle button in the main header.
+- Ensure all Shadcn UI components map correctly to CSS variables for dark mode.
+- Update `tailwind.config.ts` if needed to ensure dark variants apply flawlessly.
 
-#### Polish
-- Loading skeletons for all data-fetching states
-- Empty states with illustrations
-- Error boundaries with friendly messages
-- Responsive design: dashboard works on tablet+, mobile app is phone-first
-- Page transition animations (web: CSS, mobile: Flutter Hero/shared axis)
-- Micro-interactions on buttons, cards, status badges
+#### Final Polish
+- Ensure all data-fetching hooks (e.g., Supabase SWR/Tanstack Query or Server Components) have appropriate loading states (Skeletons or Spinners).
+- Implement responsive design adjustments to ensure tables and settings are readable on tablet devices.
+- Add error boundaries or toast error handling for any failing mutations.
 
 ---
 
@@ -590,43 +596,26 @@ Supabase Realtime subscription on `maintenance_timeline` pushes new entries to a
 | **Edge Functions** for notifications | Runs close to DB, no separate server needed |
 | **jsPDF + SheetJS** over server-side | Client-side generation avoids server load for reports |
 | **Kanban board** with CSS Grid | Lightweight, no heavy DnD library dependency initially |
+| **next-themes** | Native integration with Shadcn and Next.js App Router for Theme Management |
 
 ---
 
 ## Verification Plan
 
 ### Automated
-- `turbo build` — all apps and packages compile without errors
+- `npm run build` — web dashboard compiles without errors
 - `turbo lint` — no linting violations
-- Supabase migration dry-run on staging project
 - Flutter `flutter analyze` — no static analysis issues
 
 ### Manual Testing
-- **Auth flow**: Register → pending → admin approve → login → role-based redirect
-- **Maintenance**: Submit → HOD approve → GSO assign → technician update → complete → verify timeline
-- **Borrowing**: Reserve → HOD approve → GSO approve → release → return → inspect
-- **Real-time**: Open two browsers, change status in one, verify instant update in other
-- **Mobile**: Same workflows on Android emulator + iOS simulator
-- **Dark mode**: Toggle and verify all pages render correctly
-- **Reports**: Generate PDF/Excel/CSV and verify data accuracy
-- **Notifications**: Trigger events, verify in-app + push delivery
+- **Dark mode**: Toggle and verify all pages (Dashboard, Inventory, Maintenance, Borrowing, Settings) render correctly with high contrast.
+- **Settings Management**: Create a new Category and verify it appears in the dropdowns when creating an Inventory Item or Maintenance Request.
+- **User Management**: Successfully approve a pending profile and verify they can log in.
 
-### Browser Testing
-- Chrome, Firefox, Safari (web dashboard)
-- Android Chrome, iOS Safari (responsive check)
-
----
-
-## Open Questions
+## User Review Required
 
 > [!IMPORTANT]
-> **Priority Confirmation**: You mentioned Maintenance → Borrowing → Inventory. Should we build them in this exact order, or would you prefer the inventory CRUD first (since borrowing depends on inventory items existing)?
-
-> [!IMPORTANT]
-> **Walk-in Borrowing Approval**: For walk-in loans (borrower is physically at GSO), should the HOD approval step be skipped since the borrower is already present? Or is HOD sign-off always required regardless?
+> **Phase 6 Scope**: This phase introduces a lot of CRUD (Create, Read, Update, Delete) interfaces for settings. Do you want full CRUD for all tables (Buildings, Rooms, Roles, Departments, Categories, Users) right away, or should we prioritize Users, Departments, and Categories for the MVP?
 
 > [!NOTE]
-> **Supabase Project**: Do you already have a Supabase Cloud project created, or should I include steps to create one? Please share the project URL and anon key when ready (we'll store them in `.env.local`).
-
-> [!NOTE]
-> **Flutter Setup**: Do you have Flutter SDK installed and configured on your machine? Which version are you running? (`flutter --version`)
+> **Dark Mode**: I will implement standard Tailwind Dark Mode using `next-themes`. Please review the plan above and approve it so we can proceed with Phase 6 execution.
