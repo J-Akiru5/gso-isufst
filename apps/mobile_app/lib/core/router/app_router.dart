@@ -55,7 +55,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             .select('roles(name)')
             .eq('user_id', session.user.id);
 
-        final results = await Future.wait([profileFuture, rolesFuture]);
+        final results = await Future.wait<dynamic>([profileFuture, rolesFuture]);
         final profile = results[0] as Map<String, dynamic>?;
         final rolesData = results[1] as List<dynamic>?;
 

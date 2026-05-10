@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
@@ -92,7 +93,7 @@ class _BookingNewScreenState extends ConsumerState<BookingNewScreen> {
                   hintText: 'Choose a room',
                   border: OutlineInputBorder(),
                 ),
-                items: rooms.map((room) {
+                items: rooms.map<DropdownMenuItem<String>>((room) {
                   final buildingName = room['buildings']?['name'] ?? 'Unknown';
                   return DropdownMenuItem(
                     value: room['id'],

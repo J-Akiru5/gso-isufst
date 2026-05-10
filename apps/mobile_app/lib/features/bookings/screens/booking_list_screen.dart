@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
@@ -106,10 +107,7 @@ class BookingListScreen extends ConsumerWidget {
 }
 
 class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Appointment> appointments) {
-    this.appointments = appointments;
+  MeetingDataSource(List<Appointment> source) {
+    appointments = source;
   }
-
-  @override
-  List<CalendarAppointment> get appointments => super.appointments;
 }

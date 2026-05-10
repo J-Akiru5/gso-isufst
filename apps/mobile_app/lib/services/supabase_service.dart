@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Singleton accessor for Supabase client
@@ -81,10 +82,12 @@ class SupabaseService {
   }
 
   static Future<List<Map<String, dynamic>>> getMyBookings() async {
+    final userId = currentUserId;
+    if (userId == null) throw Exception('User not authenticated');
     return await client
         .from('bookings')
         .select('*, rooms(name), buildings(name)')
-        .eq('user_id', currentUserId)
+        .eq('user_id', userId)
         .order('start_time');
   }
 
@@ -112,7 +115,7 @@ class SupabaseService {
     if (userId == null) throw Exception('User not authenticated');
     
     final filePath = '$userId/$fileName';
-    await client.storage.from('booking_attachments').upload(filePath, path);
+    await client.storage.from('booking_attachments').upload(filePath, File(path));
     return client.storage.from('booking_attachments').getPublicUrl(filePath);
   }
 }
