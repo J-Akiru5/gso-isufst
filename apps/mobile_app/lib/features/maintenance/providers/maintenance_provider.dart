@@ -43,8 +43,7 @@ final maintenanceListProvider = FutureProvider.autoDispose((ref) async {
         building:buildings(name),
         room:rooms(name),
         requester:profiles!maintenance_requests_requester_id_fkey(full_name, avatar_url)
-      ''')
-      .order('created_at', ascending: false);
+      ''');
 
   if (isGSO) {
     // See all
@@ -54,7 +53,7 @@ final maintenanceListProvider = FutureProvider.autoDispose((ref) async {
     query = query.eq('requester_id', user.id);
   }
 
-  final response = await query;
+  final response = await query.order('created_at', ascending: false);
   return response as List<dynamic>;
 });
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_app/features/maintenance/providers/maintenance_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MaintenanceDetailScreen extends ConsumerWidget {
   final String id;
@@ -23,7 +24,9 @@ class MaintenanceDetailScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
       bottomNavigationBar: detailAsync.maybeWhen(
-        data: (request) => _buildActionButtons(context, request),
+        data: (request) => Consumer(
+          builder: (context, ref, child) => _buildActionButtons(context, ref, request),
+        ),
         orElse: () => null,
       ),
     );
@@ -447,7 +450,7 @@ class _TimelineItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.between,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     entry['title'] ?? '',
@@ -495,7 +498,7 @@ class _StatusBadge extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, py: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(6),

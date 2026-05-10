@@ -36,14 +36,14 @@ export default function MobileSettingsPage() {
               The mobile app allows technicians to handle maintenance requests and inventory management directly from the field.
             </p>
             <Button className="w-full h-12 gap-2" asChild>
-              <a href="#" target="_blank" rel="noopener noreferrer">
-                <Download className="h-4 w-4" />
-                Download for Android
-              </a>
-            </Button>
-            <p className="text-[11px] text-center text-muted-foreground">
-              Size: ~25MB • Updated: May 10, 2026
-            </p>
+               <a href="/downloads/isufst-gso.apk" download>
+                 <Download className="h-4 w-4" />
+                 Download for Android
+               </a>
+             </Button>
+             <p className="text-[11px] text-center text-muted-foreground">
+               Size: 53.5MB • Updated: May 10, 2026
+             </p>
           </CardContent>
         </Card>
 

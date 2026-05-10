@@ -168,7 +168,7 @@ export function LoginForm() {
             className="w-full h-11 border-dashed hover:border-primary hover:bg-primary/5 transition-all group"
             asChild
           >
-            <a href="#" target="_blank" rel="noopener noreferrer">
+            <a href="/downloads/isufst-gso.apk" download>
               <div className="flex items-center justify-center gap-2">
                 <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/10 transition-colors">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

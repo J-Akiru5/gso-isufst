@@ -59,7 +59,7 @@ export function DashboardHeader({ profile, roles }: DashboardHeaderProps) {
           asChild
           title="Download Mobile App"
         >
-          <a href="#" target="_blank" rel="noopener noreferrer">
+          <a href="/downloads/isufst-gso.apk" download>
             <Smartphone size={16} />
           </a>
         </Button>
