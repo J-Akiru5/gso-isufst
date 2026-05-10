@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Moon, Sun, Bell, LogOut, User, Settings, Monitor, Smartphone } from 'lucide-react'
+import { Moon, Sun, Bell, LogOut, User, Settings, Monitor, Smartphone, Users } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -59,7 +59,7 @@ export function DashboardHeader({ profile, roles }: DashboardHeaderProps) {
           asChild
           title="Download Mobile App"
         >
-          <a href="/distribution/isufst_gso.apk" download>
+          <a href="/distribution/isufst_gso.apk" download aria-label="Download mobile app APK" title="Download mobile app APK">
             <Smartphone size={16} />
           </a>
         </Button>

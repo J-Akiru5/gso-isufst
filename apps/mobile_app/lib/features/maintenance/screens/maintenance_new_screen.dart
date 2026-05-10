@@ -27,7 +27,7 @@ class _MaintenanceNewScreenState extends ConsumerState<MaintenanceNewScreen> {
   List<dynamic> _categories = [];
   List<dynamic> _buildings = [];
   List<dynamic> _rooms = [];
-  List<File> _images = [];
+  final List<File> _images = [];
   
   bool _isLoading = false;
   bool _isFetchingInitial = true;
@@ -181,7 +181,7 @@ class _MaintenanceNewScreenState extends ConsumerState<MaintenanceNewScreen> {
               ),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
-                value: _selectedCategoryId,
+                initialValue: _selectedCategoryId,
                 decoration: const InputDecoration(
                   labelText: 'Category',
                   border: OutlineInputBorder(),
@@ -199,7 +199,7 @@ class _MaintenanceNewScreenState extends ConsumerState<MaintenanceNewScreen> {
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _selectedBuildingId,
+                      initialValue: _selectedBuildingId,
                       decoration: const InputDecoration(
                         labelText: 'Building',
                         border: OutlineInputBorder(),
@@ -219,7 +219,7 @@ class _MaintenanceNewScreenState extends ConsumerState<MaintenanceNewScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _selectedRoomId,
+                      initialValue: _selectedRoomId,
                       decoration: const InputDecoration(
                         labelText: 'Room',
                         border: OutlineInputBorder(),
@@ -247,7 +247,7 @@ class _MaintenanceNewScreenState extends ConsumerState<MaintenanceNewScreen> {
               ),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
-                value: _selectedPriority,
+                initialValue: _selectedPriority,
                 decoration: const InputDecoration(
                   labelText: 'Priority',
                   border: OutlineInputBorder(),
@@ -314,7 +314,7 @@ class _MaintenanceNewScreenState extends ConsumerState<MaintenanceNewScreen> {
                           ),
                         ],
                       );
-                    }).toList(),
+                    }),
                     if (_images.length < 3)
                       GestureDetector(
                         onTap: _pickImage,
