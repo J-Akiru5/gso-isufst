@@ -15,11 +15,21 @@ import '../../features/borrowing/screens/borrowing_detail_screen.dart';
 import '../../features/borrowing/screens/borrowing_new_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
+import '../../features/onboarding/screens/onboarding_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/login',
     redirect: (context, state) async {
+      final prefs = await SharedPreferences.getInstance();
+      final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+
+      if (!hasSeenOnboarding) {
+        return state.matchedLocation == '/onboarding' ? null : '/onboarding';
+      }
+
       final session = Supabase.instance.client.auth.currentSession;
       final isAuthRoute = state.matchedLocation.startsWith('/login') ||
           state.matchedLocation.startsWith('/register') ||
@@ -59,6 +69,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/pending-approval',
         builder: (_, __) => const PendingApprovalScreen(),
       ),
+      GoRoute(
+        path: '/onboarding',
+        builder: (_, __) => const OnboardingScreen(),
+      ),
+
 
       // ── App Shell (Bottom Nav) ─────────────────────────
       ShellRoute(
