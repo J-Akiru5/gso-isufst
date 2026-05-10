@@ -142,7 +142,7 @@ export function DashboardHeader({ profile, roles }: DashboardHeaderProps) {
                 <User size={14} className="mr-2" /> Profile
             </DropdownMenuItem>
             {roles.includes('super_admin') && (
-              <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+              <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
                   <Settings size={14} className="mr-2" /> Settings
               </DropdownMenuItem>
             )}

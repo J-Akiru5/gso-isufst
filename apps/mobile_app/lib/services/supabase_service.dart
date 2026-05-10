@@ -66,4 +66,53 @@ class SupabaseService {
         .map((e) => e['roles']['name'] as String)
         .toList();
   }
+
+  // ── Rooms & Buildings ───────────────────────────────────────────
+  static Future<List<Map<String, dynamic>>> getRooms() async {
+    return await client
+        .from('rooms')
+        .select('*, buildings(name, code)')
+        .eq('is_active', true);
+  }
+
+  // ── Bookings ────────────────────────────────────────────────────
+  static Future<void> createBooking(Map<String, dynamic> bookingData) async {
+    await client.from('bookings').insert(bookingData);
+  }
+
+  static Future<List<Map<String, dynamic>>> getMyBookings() async {
+    return await client
+        .from('bookings')
+        .select('*, rooms(name), buildings(name)')
+        .eq('user_id', currentUserId)
+        .order('start_time');
+  }
+
+  static Future<List<Map<String, dynamic>>> getAllBookings() async {
+    return await client
+        .from('bookings')
+        .select('*, profiles(full_name), rooms(name), buildings(name)')
+        .order('start_time');
+  }
+
+  static Future<void> updateBookingStatus({
+    required String bookingId,
+    required String status,
+    String? approvedBy,
+  }) async {
+    await client.from('bookings').update({
+      'status': status,
+      'approved_by': approvedBy,
+      'approval_date': DateTime.now().toIso8601String(),
+    }).eq('id', bookingId);
+  }
+
+  static Future<String> uploadBookingAttachment(String path, String fileName) async {
+    final userId = currentUserId;
+    if (userId == null) throw Exception('User not authenticated');
+    
+    final filePath = '$userId/$fileName';
+    await client.storage.from('booking_attachments').upload(filePath, path);
+    return client.storage.from('booking_attachments').getPublicUrl(filePath);
+  }
 }

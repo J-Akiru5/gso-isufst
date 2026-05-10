@@ -13,6 +13,9 @@ import '../../features/inventory/screens/inventory_list_screen.dart';
 import '../../features/borrowing/screens/borrowing_list_screen.dart';
 import '../../features/borrowing/screens/borrowing_detail_screen.dart';
 import '../../features/borrowing/screens/borrowing_new_screen.dart';
+import '../../features/bookings/screens/booking_list_screen.dart';
+import '../../features/bookings/screens/booking_new_screen.dart';
+import '../../features/bookings/screens/ssc_booking_admin_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/onboarding/screens/onboarding_screen.dart';
@@ -63,6 +66,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             [];
             
         final isSuperAdmin = roles.contains('super_admin');
+        final isGsoStaff = roles.contains('gso_staff') || isSuperAdmin;
 
         if (!isSuperAdmin) {
           if (profile != null && profile['is_active'] == false) {
@@ -73,6 +77,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           if (profile == null || profile['is_approved'] == false) {
             return isAuthRoute ? null : '/pending-approval';
           }
+        }
+
+        // RBAC: Block non-staff from admin routes
+        if (state.matchedLocation.startsWith('/admin') && !isGsoStaff) {
+          return '/home';
         }
       } catch (e) {
         debugPrint('Router error checking approval: $e');
@@ -141,6 +150,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 ),
               ),
             ],
+          ),
+
+          // Bookings
+          GoRoute(
+            path: '/bookings',
+            builder: (_, __) => const BookingListScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (_, __) => const BookingNewScreen(),
+              ),
+            ],
+          ),
+
+          // Admin - SSC Management
+          GoRoute(
+            path: '/admin/bookings',
+            builder: (_, __) => const SSCBookingAdminScreen(),
           ),
 
           // Profile & Notifications

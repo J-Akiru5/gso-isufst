@@ -69,9 +69,9 @@ const NAV_ITEMS: NavItem[] = [
     roles: ['super_admin', 'gso_staff'],
   },
   {
-    title: 'Settings',
-    href: '/dashboard/settings',
-    icon: Settings,
+    title: 'My Profile',
+    href: '/dashboard/profile',
+    icon: User,
     roles: ['super_admin'],
   },
 ]
