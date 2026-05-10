@@ -28,6 +28,18 @@ export default function BookingsPage() {
   const [endTime, setEndTime] = useState('');
   const [notes, setNotes] = useState('');
   const [attachment, setAttachment] = useState<File | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  React.useEffect(() => {
+    async function checkRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from('user_roles').select('roles(name)').eq('user_id', user.id);
+      const roles = (data as any[])?.map((r) => r.roles?.name) || [];
+      setIsAdmin(roles.includes('super_admin') || roles.includes('gso_staff'));
+    }
+    checkRole();
+  }, [supabase]);
 
   const { data: rooms } = useSWR('rooms', async () => {
     const { data } = await supabase.from('rooms').select('*, buildings(name)').eq('is_active', true);
@@ -168,10 +180,12 @@ export default function BookingsPage() {
         />
       </div>
 
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4">Booking Management</h2>
-        <BookingManagement />
-      </div>
+      {isAdmin && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-4">Booking Management</h2>
+          <BookingManagement />
+        </div>
+      )}
     </div>
   );
 }

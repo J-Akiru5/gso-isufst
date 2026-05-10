@@ -18,6 +18,7 @@ import {
   ChevronRight,
   CheckCircle2,
   User,
+  Calendar,
 } from 'lucide-react'
 import { RealtimeClock } from './realtime-clock'
 
@@ -39,6 +40,11 @@ const NAV_ITEMS: NavItem[] = [
     title: 'Maintenance',
     href: '/dashboard/maintenance',
     icon: Wrench,
+  },
+  {
+    title: 'Bookings',
+    href: '/dashboard/bookings',
+    icon: Calendar,
   },
   {
     title: 'Inventory',
@@ -73,7 +79,6 @@ const NAV_ITEMS: NavItem[] = [
     title: 'My Profile',
     href: '/dashboard/profile',
     icon: User,
-    roles: ['super_admin'],
   },
 ]
 
