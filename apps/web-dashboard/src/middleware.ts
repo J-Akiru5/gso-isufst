@@ -47,24 +47,33 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Redirect authenticated users away from auth pages ──────────
+  // NOTE: /pending-approval is intentionally excluded — logged-in unapproved users land here.
+  // The sign-out action on that page will clear the session before going to /login.
   if ((pathname === '/login' || pathname === '/register') && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   // ── Check approval status ──────────────────────────────────────
   if (pathname.startsWith('/dashboard') && user) {
-    // 1. Fetch profile and roles (using single query with joins)
+    // Query profile and roles as separate queries to avoid RLS circularity
+    // (nested join through profiles→user_roles→roles fails when user_roles
+    //  RLS uses has_any_role() which itself reads user_roles)
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('is_approved, is_active, user_roles(roles(name))')
+      .select('is_approved, is_active')
       .eq('id', user.id)
       .single()
-    
+
+    const { data: userRolesData } = await supabase
+      .from('user_roles')
+      .select('roles(name)')
+      .eq('user_id', user.id)
+
     const profile = profileData as any
-    const roles = profile?.user_roles?.map((ur: any) => ur.roles?.name) || []
+    const roles = (userRolesData as any[])?.map((ur) => ur.roles?.name).filter(Boolean) ?? []
     const isSuperAdmin = roles.includes('super_admin')
 
-    // Bypass approval check for super admins
+    // Super admins always bypass approval gate
     if (!isSuperAdmin) {
       if (!profile?.is_approved) {
         return NextResponse.redirect(new URL('/pending-approval', request.url))

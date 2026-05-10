@@ -53,12 +53,13 @@ export function LoginForm() {
     } = await supabase.auth.getUser()
 
     if (user) {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('is_approved, is_active')
-        .eq('id', user.id)
-        .single()
+      const [{ data: profileData }, { data: userRolesData }] = await Promise.all([
+        supabase.from('profiles').select('is_approved, is_active').eq('id', user.id).single(),
+        supabase.from('user_roles').select('roles(name)').eq('user_id', user.id),
+      ])
       const profile = profileData as any
+      const roles = (userRolesData as any[])?.map((ur) => (ur.roles as any)?.name).filter(Boolean) ?? []
+      const isSuperAdmin = roles.includes('super_admin')
 
       if (!profile?.is_active) {
         await supabase.auth.signOut()
@@ -67,7 +68,7 @@ export function LoginForm() {
         return
       }
 
-      if (!profile?.is_approved) {
+      if (!profile?.is_approved && !isSuperAdmin) {
         router.push('/pending-approval')
         return
       }

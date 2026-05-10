@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { Clock, Mail, CheckCircle } from 'lucide-react'
+import { signOutAction } from './actions'
 
 export const metadata: Metadata = {
   title: 'Pending Approval',
@@ -61,12 +61,15 @@ export default function PendingApprovalPage() {
           <p className="text-sm text-muted-foreground">
             For urgent matters, contact the GSO Office directly.
           </p>
-          <Link
-            href="/login"
-            className="w-full inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-          >
-            Back to Sign In
-          </Link>
+          {/* Sign out via Server Action so session is cleared before hitting /login */}
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="w-full inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
+              Back to Sign In
+            </button>
+          </form>
         </div>
       </div>
     </div>
