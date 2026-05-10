@@ -39,23 +39,43 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return isAuthRoute ? null : '/login';
       }
 
-      // Check approval
+      // Check approval and roles
       try {
-        final profile = await Supabase.instance.client
+        final profileFuture = Supabase.instance.client
             .from('profiles')
             .select('is_approved, is_active')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
 
-        if (profile['is_active'] == false) {
-          await Supabase.instance.client.auth.signOut();
-          return '/login';
-        }
+        final rolesFuture = Supabase.instance.client
+            .from('user_roles')
+            .select('roles(name)')
+            .eq('user_id', session.user.id);
 
-        if (profile['is_approved'] == false) {
-          return isAuthRoute ? null : '/pending-approval';
+        final results = await Future.wait([profileFuture, rolesFuture]);
+        final profile = results[0] as Map<String, dynamic>?;
+        final rolesData = results[1] as List<dynamic>?;
+
+        final roles = rolesData
+                ?.map((e) => (e['roles'] as Map?)?['name'] as String?)
+                .where((e) => e != null)
+                .toList() ??
+            [];
+            
+        final isSuperAdmin = roles.contains('super_admin');
+
+        if (!isSuperAdmin) {
+          if (profile != null && profile['is_active'] == false) {
+            await Supabase.instance.client.auth.signOut();
+            return '/login';
+          }
+
+          if (profile == null || profile['is_approved'] == false) {
+            return isAuthRoute ? null : '/pending-approval';
+          }
         }
-      } catch (_) {
+      } catch (e) {
+        debugPrint('Router error checking approval: $e');
         return '/pending-approval';
       }
 
