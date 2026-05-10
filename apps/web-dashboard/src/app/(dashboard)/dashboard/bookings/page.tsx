@@ -5,7 +5,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -13,11 +13,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { useSWR, useSWRMutation } from 'swr';
-import { BookingManagement } from '@/components/bookings/booking-management';
+import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
+import BookingManagement from '@/components/bookings/booking-management';
 
 export default function BookingsPage() {
-  const supabase = createClientComponentClient();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<string>('');
   const [startTime, setStartTime] = useState('');
@@ -38,7 +42,7 @@ export default function BookingsPage() {
     return data;
   });
 
-  const { trigger: createBooking } = useSWRMutation('createBooking', async (arg: any) => {
+  const { trigger: createBooking } = useSWRMutation('createBooking', async (_key: string, { arg }: { arg: any }) => {
     const { data, error } = await supabase.from('bookings').insert(arg);
     if (error) throw error;
     return data;

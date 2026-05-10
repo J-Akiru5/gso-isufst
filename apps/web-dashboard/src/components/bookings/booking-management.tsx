@@ -1,15 +1,19 @@
 "use client";
 
 import React from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { useSWR, useSWRMutation } from 'swr';
+import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
 
 export default function BookingManagement() {
-  const supabase = createClientComponentClient();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const { data: bookings, mutate } = useSWR('admin_bookings', async () => {
     const { data } = await supabase
       .from('bookings')
@@ -18,7 +22,7 @@ export default function BookingManagement() {
     return data;
   });
 
-  const { trigger: updateStatus } = useSWRMutation('updateBookingStatus', async (arg: { id: string, status: string }) => {
+  const { trigger: updateStatus } = useSWRMutation('updateBookingStatus', async (_key: string, { arg }: { arg: { id: string, status: string } }) => {
     const userId = (await supabase.auth.getUser()).data.user?.id;
     const { error } = await supabase.from('bookings').update({
       status: arg.status,

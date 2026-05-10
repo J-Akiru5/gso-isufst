@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
+  User,
 } from 'lucide-react'
 import { RealtimeClock } from './realtime-clock'
 
