@@ -179,7 +179,7 @@ export function LoginForm() {
                 </div>
                 <div className="text-left">
                   <p className="text-xs font-semibold leading-tight">Download Mobile App</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">v1.0.0 (Android APK)</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">v1.1.0 (Android APK)</p>
                 </div>
               </div>
             </a>
