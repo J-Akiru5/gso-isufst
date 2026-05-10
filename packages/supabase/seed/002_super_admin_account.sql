@@ -34,6 +34,14 @@ BEGIN
       raw_app_meta_data,
       raw_user_meta_data,
       email_confirmed_at,
+      -- GoTrue's Go scanner requires empty strings, not NULL, for these token columns
+      confirmation_token,
+      recovery_token,
+      email_change_token_new,
+      email_change_token_current,
+      email_change,
+      phone_change,
+      phone_change_token,
       created_at,
       updated_at
     ) VALUES (
@@ -46,6 +54,7 @@ BEGIN
       '{"provider": "email", "providers": ["email"]}',
       '{"full_name": "Super Administrator"}',
       NOW(),
+      '', '', '', '', '', '', '',  -- token columns must never be NULL
       NOW(),
       NOW()
     );
