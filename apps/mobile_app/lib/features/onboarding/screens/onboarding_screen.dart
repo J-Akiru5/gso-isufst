@@ -27,7 +27,7 @@ class OnboardingScreen extends StatelessWidget {
     );
 
     return IntroductionScreen(
-      key: const GlobalKey<IntroductionScreenState>(),
+      key: GlobalKey<IntroductionScreenState>(),
       globalBackgroundColor: Colors.white,
       allowImplicitScrolling: true,
       autoScrollDuration: 3000,
@@ -77,12 +77,6 @@ class OnboardingScreen extends StatelessWidget {
         activeSize: Size(22.0, 10.0),
         activeShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(25.0)),
-        ),
-      ),
-      dotsContainerDecoration: const ShapeDecoration(
-        color: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
         ),
       ),
     );
