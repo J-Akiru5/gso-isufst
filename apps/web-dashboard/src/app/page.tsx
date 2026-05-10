@@ -124,7 +124,7 @@ export default function LandingPage() {
                   <svg className="w-6 h-6 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.523 15.3414L20.355 18.1734L18.941 19.5874L16.109 16.7554V21H14.109V13H22.109V15H17.523V15.3414ZM7.109 13H12.109V15H9.109V17H12.109V19H9.109V21H7.109V13ZM2 13H5V21H2V13ZM3 15V19H4V15H3Z" />
                   </svg>
-                  <span>Download APK <span className="text-slate-500 font-normal ml-1 text-sm">(v1.0.0)</span></span>
+                  <span>Download APK <span className="text-slate-500 font-normal ml-1 text-sm">(v1.0.1)</span></span>
                 </a>
               </div>
             </div>
