@@ -14,10 +14,10 @@ import {
   Settings,
   BarChart3,
   Bell,
-  ChevronLeft,
   ChevronRight,
   CheckCircle2,
 } from 'lucide-react'
+import { RealtimeClock } from './realtime-clock'
 
 interface NavItem {
   title: string
@@ -50,7 +50,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: ClipboardList,
   },
   {
-    title: 'Loan Mgmt',
+    title: 'Borrow Management',
     href: '/dashboard/borrowing/management',
     icon: CheckCircle2,
     roles: ['super_admin', 'gso_staff', 'department_head'],
@@ -166,6 +166,8 @@ export function DashboardShell({ profile, roles, children }: DashboardShellProps
         >
           {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
         </button>
+
+        <RealtimeClock collapsed={collapsed} />
 
         {/* User info at bottom */}
         {!collapsed && (

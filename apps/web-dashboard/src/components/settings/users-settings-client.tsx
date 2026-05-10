@@ -29,13 +29,7 @@ export function UsersSettingsClient() {
 
   const fetchUsers = async () => {
     const { data, error } = await supabase
-      .from("profiles")
-      .select(`
-        *,
-        departments ( name ),
-        user_roles ( roles ( id, name, display_name ) )
-      `)
-      .order("created_at", { ascending: false })
+      .rpc('get_all_profiles_with_roles')
       
     if (error) throw error
     return data
@@ -118,12 +112,12 @@ export function UsersSettingsClient() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{user.departments?.name || "N/A"}</TableCell>
+                  <TableCell>{user.department_name || "N/A"}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {user.user_roles?.map((ur: any, idx: number) => (
+                      {user.user_roles?.map((role: any, idx: number) => (
                         <Badge key={idx} variant="outline" className="capitalize text-[10px] h-5">
-                          {ur.roles?.display_name || ur.roles?.name.replace("_", " ")}
+                          {role.display_name || role.name.replace("_", " ")}
                         </Badge>
                       ))}
                       {(!user.user_roles || user.user_roles.length === 0) && (

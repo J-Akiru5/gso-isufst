@@ -73,7 +73,7 @@ export default async function LoanManagementPage({
       case 'Pending_HOD': return 'bg-orange-500/10 text-orange-500 border-orange-500/20'
       case 'Pending_GSO': return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
       case 'Approved': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-      case 'Active': return 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+      case 'In_Use': return 'bg-purple-500/10 text-purple-500 border-purple-500/20'
       case 'Returned': return 'bg-gray-500/10 text-gray-500 border-gray-500/20'
       case 'Overdue': return 'bg-red-500/10 text-red-500 border-red-500/20'
       default: return 'bg-gray-500/10 text-gray-500 border-gray-500/20'
@@ -83,7 +83,7 @@ export default async function LoanManagementPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Loan Management</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Borrow Management</h1>
         <p className="text-muted-foreground">
           Manage equipment releases, returns, and inter-departmental approvals.
         </p>
@@ -103,7 +103,7 @@ export default async function LoanManagementPage({
             <CardTitle className="text-xs font-medium uppercase text-muted-foreground">Currently Out</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loans?.filter(l => l.status === 'Active').length}</div>
+            <div className="text-2xl font-bold">{loans?.filter(l => l.status === 'In_Use').length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -129,7 +129,7 @@ export default async function LoanManagementPage({
           <TabsList>
             <TabsTrigger value="all">All Requests</TabsTrigger>
             <TabsTrigger value="pending">Needs Approval</TabsTrigger>
-            <TabsTrigger value="active">Active Loans</TabsTrigger>
+            <TabsTrigger value="active">Active Borrows</TabsTrigger>
             <TabsTrigger value="returned">Returned</TabsTrigger>
           </TabsList>
           <div className="relative w-full md:w-64">
