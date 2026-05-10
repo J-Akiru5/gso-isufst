@@ -59,7 +59,7 @@ export function DashboardHeader({ profile, roles }: DashboardHeaderProps) {
           asChild
           title="Download Mobile App"
         >
-          <a href="/downloads/isufst-gso.apk" download>
+          <a href="/distribution/isufst_gso.apk" download>
             <Smartphone size={16} />
           </a>
         </Button>
@@ -98,6 +98,19 @@ export function DashboardHeader({ profile, roles }: DashboardHeaderProps) {
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
             <span className="sr-only">Notifications</span>
         </Button>
+
+        {/* User Panel (Quick Access) */}
+        {(roles.includes('super_admin') || roles.includes('gso_staff')) && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8" 
+            onClick={() => router.push('/dashboard/settings/users')}
+            title="User Management"
+          >
+            <Users size={16} />
+          </Button>
+        )}
 
         {/* User menu */}
         <DropdownMenu>
