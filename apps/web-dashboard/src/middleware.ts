@@ -53,20 +53,27 @@ export async function middleware(request: NextRequest) {
 
   // ── Check approval status ──────────────────────────────────────
   if (pathname.startsWith('/dashboard') && user) {
+    // 1. Fetch profile and roles (using single query with joins)
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('is_approved, is_active')
+      .select('is_approved, is_active, user_roles(roles(name))')
       .eq('id', user.id)
       .single()
+    
     const profile = profileData as any
+    const roles = profile?.user_roles?.map((ur: any) => ur.roles?.name) || []
+    const isSuperAdmin = roles.includes('super_admin')
 
-    if (!profile?.is_approved) {
-      return NextResponse.redirect(new URL('/pending-approval', request.url))
-    }
+    // Bypass approval check for super admins
+    if (!isSuperAdmin) {
+      if (!profile?.is_approved) {
+        return NextResponse.redirect(new URL('/pending-approval', request.url))
+      }
 
-    if (!profile?.is_active) {
-      await supabase.auth.signOut()
-      return NextResponse.redirect(new URL('/login?reason=deactivated', request.url))
+      if (!profile?.is_active) {
+        await supabase.auth.signOut()
+        return NextResponse.redirect(new URL('/login?reason=deactivated', request.url))
+      }
     }
   }
 

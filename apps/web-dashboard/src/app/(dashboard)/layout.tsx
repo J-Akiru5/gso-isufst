@@ -21,14 +21,15 @@ export default async function DashboardLayout({
     .single()
   const profile = profileData as any
 
-  if (!profile?.is_approved) redirect('/pending-approval')
-
   const { data: userRoles } = await supabase
     .from('user_roles')
     .select('roles(name, display_name)')
     .eq('user_id', user.id)
 
   const roles = userRoles?.map((ur: any) => ur.roles?.name).filter(Boolean) ?? []
+  const isSuperAdmin = roles.includes('super_admin')
+
+  if (!profile?.is_approved && !isSuperAdmin) redirect('/pending-approval')
 
   return (
     <DashboardShell profile={profile} roles={roles}>
