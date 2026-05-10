@@ -8,12 +8,13 @@ import 'core/tokens/app_colors.dart';
 // Supabase keys — passed via --dart-define at build time
 const _supabaseUrl = String.fromEnvironment(
   'SUPABASE_URL',
-  defaultValue: 'https://your-project-ref.supabase.co',
+  defaultValue: 'https://czogcngimqyetrtpcoxn.supabase.co',
 );
 const _supabaseAnonKey = String.fromEnvironment(
   'SUPABASE_ANON_KEY',
-  defaultValue: 'your-anon-key',
+  defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6b2djbmdpbXF5ZXRydHBjb3huIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzY0NzYsImV4cCI6MjA5MzkxMjQ3Nn0.6O9klEECawpUE37pfm8aH5k6PXZFn6h-rst0_Jo06Og',
 );
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
