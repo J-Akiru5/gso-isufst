@@ -34,6 +34,8 @@ import '../../features/travel/screens/travel_new_screen.dart';
 import '../../features/travel/screens/travel_detail_screen.dart';
 import '../../features/travel/screens/driver_trips_screen.dart';
 import '../../features/travel/screens/driver_trip_detail_screen.dart';
+import '../../features/travel/screens/driver_schedule_screen.dart';
+import '../../features/travel/screens/driver_vehicle_screen.dart';
 import '../../features/travel/screens/fleet_management_screen.dart';
 // ── Profile & Notifications
 import '../../features/profile/screens/profile_screen.dart';
@@ -286,11 +288,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/driver/schedule',
-            builder: (_, __) => const DriverTripsScreen(),
+            builder: (_, __) => const DriverScheduleScreen(),
           ),
           GoRoute(
             path: '/driver/vehicle',
-            builder: (_, __) => const DriverTripsScreen(),
+            builder: (_, __) => const DriverVehicleScreen(),
           ),
 
           // ── Fleet Management ─────────────────────────────────

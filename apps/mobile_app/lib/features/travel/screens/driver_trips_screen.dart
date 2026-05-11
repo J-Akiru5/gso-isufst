@@ -48,7 +48,7 @@ class DriverTripsScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 if (todayTrip != null) ...[
-                  const Text('Today\'s Trip', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  const Text("Today's Trip", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   const SizedBox(height: 10),
                   _TripCard(
                     trip: todayTrip,
