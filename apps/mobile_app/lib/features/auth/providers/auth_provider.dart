@@ -97,3 +97,13 @@ final isTechnicianProvider = Provider.autoDispose<bool>((ref) {
   final roles = ref.watch(userRolesProvider).valueOrNull ?? [];
   return roles.contains('technician');
 });
+
+final isDriverProvider = Provider.autoDispose<bool>((ref) {
+  final roles = ref.watch(userRolesProvider).valueOrNull ?? [];
+  return roles.contains('driver');
+});
+
+final isSscStaffProvider = Provider.autoDispose<bool>((ref) {
+  final roles = ref.watch(userRolesProvider).valueOrNull ?? [];
+  return roles.contains('ssc_staff');
+});
