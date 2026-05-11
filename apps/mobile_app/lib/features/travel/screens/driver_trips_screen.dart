@@ -35,7 +35,7 @@ class DriverTripsScreen extends ConsumerWidget {
               final depart = DateTime.tryParse(trip['departure_time']?.toString() ?? '');
               if (depart == null) continue;
               final local = depart.toLocal();
-              if (local.isAfter(todayStart) && local.isBefore(todayEnd) && todayTrip == null) {
+              if (!local.isBefore(todayStart) && local.isBefore(todayEnd) && todayTrip == null) {
                 todayTrip = trip;
               } else if (local.isAfter(now)) {
                 upcoming.add(trip);

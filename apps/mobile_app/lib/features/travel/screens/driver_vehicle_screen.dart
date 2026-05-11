@@ -24,8 +24,8 @@ class DriverVehicleScreen extends ConsumerWidget {
           withVehicle.sort((a, b) {
             final aDate = DateTime.tryParse(a['departure_time']?.toString() ?? '');
             final bDate = DateTime.tryParse(b['departure_time']?.toString() ?? '');
-            final aTime = aDate?.toLocal() ?? DateTime.fromMillisecondsSinceEpoch(0);
-            final bTime = bDate?.toLocal() ?? DateTime.fromMillisecondsSinceEpoch(0);
+            final aTime = aDate?.toLocal() ?? DateTime(1);
+            final bTime = bDate?.toLocal() ?? DateTime(1);
             final aStatus = a['status']?.toString() ?? '';
             final bStatus = b['status']?.toString() ?? '';
             final aScore = aStatus == 'Ongoing'
