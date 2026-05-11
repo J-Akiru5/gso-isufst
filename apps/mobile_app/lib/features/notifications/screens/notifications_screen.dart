@@ -111,7 +111,8 @@ class _NotificationSection extends ConsumerWidget {
               if (id.isEmpty) return;
               try {
                 await markAsRead(id);
-              } catch (_) {
+              } catch (e) {
+                debugPrint('Failed to mark notification as read (swipe): $e');
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Unable to mark notification as read')),
@@ -126,7 +127,8 @@ class _NotificationSection extends ConsumerWidget {
                 if (!isRead && id.isNotEmpty) {
                   try {
                     await markAsRead(id);
-                  } catch (_) {
+                  } catch (e) {
+                    debugPrint('Failed to mark notification as read (tap): $e');
                     canNavigate = false;
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
