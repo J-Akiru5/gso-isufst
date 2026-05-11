@@ -89,7 +89,14 @@ class _NotificationSection extends ConsumerWidget {
           final isRead = item['is_read'] == true;
           return Dismissible(
             key: ValueKey('notif-$id'),
-            direction: isRead ? DismissDirection.none : DismissDirection.endToStart,
+            direction: DismissDirection.endToStart,
+            confirmDismiss: (_) async {
+              if (!isRead) return true;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Notification is already marked as read')),
+              );
+              return false;
+            },
             background: Container(
               margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
@@ -173,7 +180,7 @@ class _NotificationTile extends StatelessWidget {
         ),
       ),
       trailing: Text(
-        createdAt == null ? '—' : timeago.format(createdAt),
+        createdAt == null ? 'N/A' : timeago.format(createdAt),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
             ),
