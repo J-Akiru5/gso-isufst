@@ -15,16 +15,32 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 
+import { createClient } from "@/lib/supabase/server"
+import { format } from "date-fns"
+
 export const metadata: Metadata = {
   title: "Mobile App Settings",
   description: "Download and manage the ISUFST GSO Mobile App distribution.",
 }
 
-export default function MobileSettingsPage() {
-  const currentVersion = "1.0.1"
-  const apkPath = "/distribution/isufst_gso.apk"
-  const apkSize = "84.5 MB"
-  const releaseDate = "May 10, 2026"
+export default async function MobileSettingsPage() {
+  const supabase = await createClient()
+  
+  const { data: versionData } = await supabase
+    .from('app_versions')
+    .select('*')
+    .eq('platform', 'android')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  const currentVersion = versionData?.version_number || "1.0.0"
+  const apkPath = versionData?.download_url || "/distribution/isufst_gso.apk"
+  const apkSize = "84.5 MB" // In a real scenario, this could be stored or calculated
+  const releaseDate = versionData?.created_at 
+    ? format(new Date(versionData.created_at), "MMMM dd, yyyy")
+    : "May 10, 2026"
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">

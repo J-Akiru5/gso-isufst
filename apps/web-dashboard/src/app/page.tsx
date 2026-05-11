@@ -1,7 +1,20 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/server'
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient()
+  const { data: versionData } = await supabase
+    .from('app_versions')
+    .select('*')
+    .eq('platform', 'android')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  const currentVersion = versionData?.version_number || "1.0.0"
+  const apkPath = versionData?.download_url || "/distribution/isufst_gso.apk"
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500/30 selection:text-indigo-200 overflow-x-hidden font-sans">
       {/* Background Effects */}
@@ -118,13 +131,13 @@ export default function LandingPage() {
               
               <div className="flex flex-col sm:flex-row items-start gap-6">
                 <a
-                  href="/distribution/isufst_gso.apk"
+                  href={apkPath}
                   className="group relative inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl font-bold hover:bg-slate-100 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-1"
                 >
                   <svg className="w-6 h-6 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.523 15.3414L20.355 18.1734L18.941 19.5874L16.109 16.7554V21H14.109V13H22.109V15H17.523V15.3414ZM7.109 13H12.109V15H9.109V17H12.109V19H9.109V21H7.109V13ZM2 13H5V21H2V13ZM3 15V19H4V15H3Z" />
                   </svg>
-                  <span>Download APK <span className="text-slate-500 font-normal ml-1 text-sm">(v1.0.1)</span></span>
+                  <span>Download APK <span className="text-slate-500 font-normal ml-1 text-sm">(v{currentVersion})</span></span>
                 </a>
               </div>
             </div>
