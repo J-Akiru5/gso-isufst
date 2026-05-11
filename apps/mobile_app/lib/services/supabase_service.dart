@@ -223,9 +223,9 @@ class SupabaseService {
   static Future<List<Map<String, dynamic>>> getDriverProfiles() async {
     final roleRows = await client
         .from('user_roles')
-        .select('user_id, roles(name)')
-        .eq('roles.name', 'driver');
+        .select('user_id, roles(name)');
     final ids = (roleRows as List)
+        .where((e) => ((e as Map)['roles'] as Map?)?['name'] == 'driver')
         .map((e) => (e as Map)['user_id']?.toString())
         .whereType<String>()
         .toList();

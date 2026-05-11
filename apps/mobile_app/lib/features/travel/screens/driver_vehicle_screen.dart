@@ -16,10 +16,28 @@ class DriverVehicleScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (trips) {
-          final assigned = trips.cast<Map<String, dynamic>>().firstWhere(
-                (trip) => trip['vehicle'] != null,
-                orElse: () => {},
-              );
+          final now = DateTime.now();
+          final withVehicle = trips
+              .cast<Map<String, dynamic>>()
+              .where((trip) => trip['vehicle'] != null)
+              .toList();
+          withVehicle.sort((a, b) {
+            final aDate = DateTime.tryParse(a['departure_time']?.toString() ?? '');
+            final bDate = DateTime.tryParse(b['departure_time']?.toString() ?? '');
+            final aTime = aDate?.toLocal() ?? DateTime.fromMillisecondsSinceEpoch(0);
+            final bTime = bDate?.toLocal() ?? DateTime.fromMillisecondsSinceEpoch(0);
+            final aStatus = a['status']?.toString() ?? '';
+            final bStatus = b['status']?.toString() ?? '';
+            final aScore = aStatus == 'Ongoing'
+                ? 0
+                : (aStatus == 'Scheduled' && aTime.isAfter(now) ? 1 : 2);
+            final bScore = bStatus == 'Ongoing'
+                ? 0
+                : (bStatus == 'Scheduled' && bTime.isAfter(now) ? 1 : 2);
+            if (aScore != bScore) return aScore.compareTo(bScore);
+            return bTime.compareTo(aTime);
+          });
+          final assigned = withVehicle.isEmpty ? <String, dynamic>{} : withVehicle.first;
           final vehicle = assigned['vehicle'];
 
           if (vehicle == null || vehicle is! Map) {

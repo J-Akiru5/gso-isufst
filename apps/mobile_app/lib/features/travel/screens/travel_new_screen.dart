@@ -153,7 +153,8 @@ class _TravelNewScreenState extends ConsumerState<TravelNewScreen> {
       );
       return;
     }
-    if (!_return!.isAfter(_departure!)) {
+    if (_return!.isBefore(_departure!) ||
+        _return!.isAtSameMomentAs(_departure!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Return time must be after departure time.')),
       );
