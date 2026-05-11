@@ -27,7 +27,7 @@ class DriverTripsScreen extends ConsumerWidget {
             final now = DateTime.now();
             final todayStart = DateTime(now.year, now.month, now.day);
             final todayEnd = todayStart.add(const Duration(days: 1));
-            Map<String, dynamic>? todayTrip;
+            final todayTrips = <Map<String, dynamic>>[];
             final upcoming = <Map<String, dynamic>>[];
             final past = <Map<String, dynamic>>[];
 
@@ -35,8 +35,8 @@ class DriverTripsScreen extends ConsumerWidget {
               final depart = DateTime.tryParse(trip['departure_time']?.toString() ?? '');
               if (depart == null) continue;
               final local = depart.toLocal();
-              if (!local.isBefore(todayStart) && local.isBefore(todayEnd) && todayTrip == null) {
-                todayTrip = trip;
+              if (!local.isBefore(todayStart) && local.isBefore(todayEnd)) {
+                todayTrips.add(trip);
               } else if (local.isAfter(now)) {
                 upcoming.add(trip);
               } else {
@@ -47,15 +47,15 @@ class DriverTripsScreen extends ConsumerWidget {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                if (todayTrip != null) ...[
+                if (todayTrips.isNotEmpty) ...[
                   const Text("Today's Trip", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   const SizedBox(height: 10),
                   _TripCard(
-                    trip: todayTrip,
+                    trip: todayTrips.first,
                     showActions: true,
                     onStart: () async {
                       try {
-                        await updateStatus(bookingId: todayTrip!['id'] as String, status: 'Ongoing');
+                        await updateStatus(bookingId: todayTrips.first['id'] as String, status: 'Ongoing');
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Trip started.')),
@@ -71,7 +71,7 @@ class DriverTripsScreen extends ConsumerWidget {
                     },
                     onEnd: () async {
                       try {
-                        await updateStatus(bookingId: todayTrip!['id'] as String, status: 'Completed');
+                        await updateStatus(bookingId: todayTrips.first['id'] as String, status: 'Completed');
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Trip completed.')),
@@ -85,8 +85,12 @@ class DriverTripsScreen extends ConsumerWidget {
                         }
                       }
                     },
-                    onMaps: () => _openInMaps(todayTrip!['destination']?.toString()),
+                    onMaps: () => _openInMaps(todayTrips.first['destination']?.toString()),
                   ),
+                  if (todayTrips.length > 1) ...[
+                    const SizedBox(height: 8),
+                    ...todayTrips.skip(1).map((t) => _TripCard(trip: t)),
+                  ],
                   const SizedBox(height: 18),
                 ],
                 const Text('Upcoming Trips', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),

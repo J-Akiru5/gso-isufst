@@ -165,7 +165,7 @@ class _TravelDetailScreenState extends ConsumerState<TravelDetailScreen> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: (_selectedDriverId == null && _selectedVehicleId == null)
+                  onPressed: (_selectedDriverId == null || _selectedVehicleId == null)
                       ? null
                       : handleAssign,
                   child: const Text('Assign & Schedule'),
