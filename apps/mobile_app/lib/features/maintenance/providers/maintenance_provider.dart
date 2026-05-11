@@ -9,7 +9,7 @@ final profileProvider = FutureProvider.autoDispose((ref) async {
 
   final response = await supabase
       .from('profiles')
-      .select('*, user_roles(roles(name))')
+      .select('*, user_roles!user_roles_user_id_fkey(roles(name))')
       .eq('id', user.id)
       .single();
   
@@ -24,7 +24,7 @@ final maintenanceListProvider = FutureProvider.autoDispose((ref) async {
   // Fetch profile to check roles
   final profileRes = await supabase
       .from('profiles')
-      .select('*, user_roles(roles(name))')
+      .select('*, user_roles!user_roles_user_id_fkey(roles(name))')
       .eq('id', user.id)
       .single();
   
@@ -70,7 +70,7 @@ final maintenanceDetailProvider = FutureProvider.autoDispose.family<Map<String, 
         requester:profiles!maintenance_requests_requester_id_fkey(full_name, avatar_url, phone, department:departments(name)),
         technician:profiles!maintenance_requests_assigned_to_fkey(full_name, avatar_url),
         attachments:maintenance_attachments(*),
-        timeline:maintenance_timeline(*, performed_by:profiles(full_name))
+        timeline:maintenance_timeline(*, performed_by:profiles!maintenance_timeline_performed_by_fkey(full_name))
       ''')
       .eq('id', id)
       .single();
