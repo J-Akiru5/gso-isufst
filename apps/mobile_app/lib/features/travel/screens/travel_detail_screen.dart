@@ -176,7 +176,7 @@ class _TravelDetailScreenState extends ConsumerState<TravelDetailScreen> {
                 ElevatedButton.icon(
                   onPressed: () => handleStatus(canDriverStart ? 'Ongoing' : 'Completed'),
                   icon: Icon(canDriverStart ? Icons.play_arrow : Icons.check),
-                  child: Text(canDriverStart ? 'Start Trip' : 'End Trip'),
+                  label: Text(canDriverStart ? 'Start Trip' : 'End Trip'),
                 ),
               ],
             ],

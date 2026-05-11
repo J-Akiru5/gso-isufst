@@ -39,7 +39,7 @@ import '../../features/travel/screens/driver_vehicle_screen.dart';
 import '../../features/travel/screens/fleet_management_screen.dart';
 // ── Profile & Notifications
 import '../../features/profile/screens/profile_screen.dart';
-import '../../features/notifications/screens/notifications_screen.dart';
+import '../../features/notifications/screens/notification_center_screen.dart';
 
 // ── Placeholder for not-yet-implemented screens ────────────────
 class _PlaceholderScreen extends StatelessWidget {
@@ -319,7 +319,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/notifications',
-            builder: (_, __) => const NotificationsScreen(),
+            builder: (_, __) => const NotificationCenterScreen(),
           ),
         ],
       ),
