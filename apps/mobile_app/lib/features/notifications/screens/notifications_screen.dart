@@ -109,15 +109,35 @@ class _NotificationSection extends ConsumerWidget {
             ),
             onDismissed: (_) async {
               if (id.isEmpty) return;
-              await markAsRead(id);
+              try {
+                await markAsRead(id);
+              } catch (_) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Unable to mark notification as read')),
+                  );
+                }
+              }
             },
             child: _NotificationTile(
               notification: item,
               onTap: () async {
+                var canNavigate = true;
                 if (!isRead && id.isNotEmpty) {
-                  await markAsRead(id);
+                  try {
+                    await markAsRead(id);
+                  } catch (_) {
+                    canNavigate = false;
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Unable to mark notification as read')),
+                      );
+                    }
+                  }
                 }
-                if (context.mounted) _openNotificationLink(context, item);
+                if (canNavigate && context.mounted) {
+                  _openNotificationLink(context, item);
+                }
               },
             ),
           );

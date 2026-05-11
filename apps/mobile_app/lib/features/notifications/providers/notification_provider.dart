@@ -25,7 +25,7 @@ final markAsReadProvider = Provider.autoDispose<Future<void> Function(String)>((
     await Supabase.instance.client.from('notifications').update({
       'is_read': true,
       'read_at': DateTime.now().toIso8601String(),
-    }).eq('id', id).eq('is_read', false);
+    }).eq('id', id);
   };
 });
 
