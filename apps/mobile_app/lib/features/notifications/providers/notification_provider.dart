@@ -22,10 +22,14 @@ final unreadCountProvider = Provider.autoDispose<int>((ref) {
 
 final markAsReadProvider = Provider.autoDispose<Future<void> Function(String)>((ref) {
   return (id) async {
-    await Supabase.instance.client.from('notifications').update({
-      'is_read': true,
-      'read_at': DateTime.now().toIso8601String(),
-    }).eq('id', id);
+    try {
+      await Supabase.instance.client.from('notifications').update({
+        'is_read': true,
+        'read_at': DateTime.now().toIso8601String(),
+      }).eq('id', id);
+    } catch (e) {
+      throw Exception('Failed to mark notification as read: $e');
+    }
   };
 });
 
@@ -34,9 +38,13 @@ final markAllReadProvider = Provider.autoDispose<Future<void> Function()>((ref) 
     final user = ref.read(authProvider).valueOrNull;
     if (user == null) return;
 
-    await Supabase.instance.client.from('notifications').update({
-      'is_read': true,
-      'read_at': DateTime.now().toIso8601String(),
-    }).eq('user_id', user.id).eq('is_read', false);
+    try {
+      await Supabase.instance.client.from('notifications').update({
+        'is_read': true,
+        'read_at': DateTime.now().toIso8601String(),
+      }).eq('user_id', user.id).eq('is_read', false);
+    } catch (e) {
+      throw Exception('Failed to mark all notifications as read: $e');
+    }
   };
 });
