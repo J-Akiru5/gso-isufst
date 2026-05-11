@@ -67,6 +67,22 @@ class _TravelCard extends ConsumerWidget {
     final status = item['status']?.toString() ?? 'Pending';
     final updateStatus = ref.read(updateTravelStatusProvider);
     final depart = DateTime.tryParse(item['departure_time']?.toString() ?? '');
+    Future<void> handleStatus(String nextStatus) async {
+      try {
+        await updateStatus(bookingId: item['id'] as String, status: nextStatus);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Request marked as $nextStatus.')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Update failed: $e')),
+          );
+        }
+      }
+    }
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -110,12 +126,12 @@ class _TravelCard extends ConsumerWidget {
                   children: [
                     if (status == 'Pending')
                       OutlinedButton(
-                        onPressed: () => updateStatus(bookingId: item['id'] as String, status: 'Approved'),
+                        onPressed: () => handleStatus('Approved'),
                         child: const Text('Approve'),
                       ),
                     if (status == 'Pending')
                       OutlinedButton(
-                        onPressed: () => updateStatus(bookingId: item['id'] as String, status: 'Rejected'),
+                        onPressed: () => handleStatus('Rejected'),
                         child: const Text('Reject'),
                       ),
                     OutlinedButton(

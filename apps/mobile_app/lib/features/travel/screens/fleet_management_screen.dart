@@ -53,10 +53,25 @@ class FleetManagementScreen extends ConsumerWidget {
                     ),
                     trailing: Switch(
                       value: isAvailable,
-                      onChanged: (val) => updateStatus(
-                        vehicleId: v['id'].toString(),
-                        status: val ? 'Available' : 'Unavailable',
-                      ),
+                      onChanged: (val) async {
+                        try {
+                          await updateStatus(
+                            vehicleId: v['id'].toString(),
+                            status: val ? 'Available' : 'Unavailable',
+                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Vehicle marked ${val ? 'Available' : 'Unavailable'}.')),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed to update vehicle: $e')),
+                            );
+                          }
+                        }
+                      },
                     ),
                     onTap: () => _showVehicleDialog(context, ref, initial: v),
                   ),

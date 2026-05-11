@@ -53,8 +53,38 @@ class DriverTripsScreen extends ConsumerWidget {
                   _TripCard(
                     trip: todayTrip,
                     showActions: true,
-                    onStart: () => updateStatus(bookingId: todayTrip!['id'] as String, status: 'Ongoing'),
-                    onEnd: () => updateStatus(bookingId: todayTrip!['id'] as String, status: 'Completed'),
+                    onStart: () async {
+                      try {
+                        await updateStatus(bookingId: todayTrip!['id'] as String, status: 'Ongoing');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Trip started.')),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to start trip: $e')),
+                          );
+                        }
+                      }
+                    },
+                    onEnd: () async {
+                      try {
+                        await updateStatus(bookingId: todayTrip!['id'] as String, status: 'Completed');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Trip completed.')),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to complete trip: $e')),
+                          );
+                        }
+                      }
+                    },
                     onMaps: () => _openInMaps(todayTrip!['destination']?.toString()),
                   ),
                   const SizedBox(height: 18),

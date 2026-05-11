@@ -40,6 +40,43 @@ class _TravelDetailScreenState extends ConsumerState<TravelDetailScreen> {
           final driversAsync = ref.watch(driverProfilesProvider);
           final canDriverStart = isDriver && status == 'Scheduled';
           final canDriverEnd = isDriver && status == 'Ongoing';
+          Future<void> handleStatus(String nextStatus) async {
+            try {
+              await updateStatus(bookingId: widget.id, status: nextStatus);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Request marked as $nextStatus.')),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Update failed: $e')),
+                );
+              }
+            }
+          }
+
+          Future<void> handleAssign() async {
+            try {
+              await assign(
+                bookingId: widget.id,
+                driverId: _selectedDriverId,
+                vehicleId: _selectedVehicleId,
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Trip assigned and scheduled.')),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Assignment failed: $e')),
+                );
+              }
+            }
+          }
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -80,12 +117,12 @@ class _TravelDetailScreenState extends ConsumerState<TravelDetailScreen> {
                   children: [
                     if (status == 'Pending')
                       OutlinedButton(
-                        onPressed: () => updateStatus(bookingId: widget.id, status: 'Approved'),
+                        onPressed: () => handleStatus('Approved'),
                         child: const Text('Approve'),
                       ),
                     if (status == 'Pending')
                       OutlinedButton(
-                        onPressed: () => updateStatus(bookingId: widget.id, status: 'Rejected'),
+                        onPressed: () => handleStatus('Rejected'),
                         child: const Text('Reject'),
                       ),
                   ],
@@ -130,21 +167,14 @@ class _TravelDetailScreenState extends ConsumerState<TravelDetailScreen> {
                 ElevatedButton(
                   onPressed: (_selectedDriverId == null && _selectedVehicleId == null)
                       ? null
-                      : () => assign(
-                            bookingId: widget.id,
-                            driverId: _selectedDriverId,
-                            vehicleId: _selectedVehicleId,
-                          ),
+                      : handleAssign,
                   child: const Text('Assign & Schedule'),
                 ),
               ],
               if (canDriverStart || canDriverEnd) ...[
                 const SizedBox(height: 18),
                 ElevatedButton.icon(
-                  onPressed: () => updateStatus(
-                    bookingId: widget.id,
-                    status: canDriverStart ? 'Ongoing' : 'Completed',
-                  ),
+                  onPressed: () => handleStatus(canDriverStart ? 'Ongoing' : 'Completed'),
                   icon: Icon(canDriverStart ? Icons.play_arrow : Icons.check),
                   child: Text(canDriverStart ? 'Start Trip' : 'End Trip'),
                 ),

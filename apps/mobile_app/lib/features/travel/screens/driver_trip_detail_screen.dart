@@ -58,13 +58,43 @@ class DriverTripDetailScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               if (status == 'Scheduled')
                 ElevatedButton.icon(
-                  onPressed: () => updateStatus(bookingId: id, status: 'Ongoing'),
+                  onPressed: () async {
+                    try {
+                      await updateStatus(bookingId: id, status: 'Ongoing');
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Trip started.')),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to start trip: $e')),
+                        );
+                      }
+                    }
+                  },
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('Start Trip'),
                 ),
               if (status == 'Ongoing')
                 ElevatedButton.icon(
-                  onPressed: () => updateStatus(bookingId: id, status: 'Completed'),
+                  onPressed: () async {
+                    try {
+                      await updateStatus(bookingId: id, status: 'Completed');
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Trip completed.')),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to complete trip: $e')),
+                        );
+                      }
+                    }
+                  },
                   icon: const Icon(Icons.check_circle_outline),
                   label: const Text('End Trip'),
                 ),
