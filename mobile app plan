@@ -1,0 +1,294 @@
+# Fix Database Schema & Complete Mobile App — Final Plan
+
+## Context
+The GSO-ISUFST mobile app companion to the web dashboard has critical DB bugs (`PGRST201` ambiguous FK), incomplete screens (stubs), no travel module, no `driver` role, and broken seed data. This plan brings it to full feature parity with 7 roles.
+
+---
+
+## Decisions Confirmed
+
+| # | Decision | Answer |
+|---|----------|--------|
+| 1 | Driver bottom nav | Custom: **Home, My Trips, Schedule, Vehicle, Profile** |
+| 2 | Technician borrowing | View-only (browse equipment, no reserve) |
+| 3 | SSC role | Student Support Center office — part of event/booking approval chain |
+| 4 | Travel booking numbers | Auto-generate via trigger (`TRV-YYYY-NNNN`) |
+| 5 | Driver workflow | Requester → GSO approves + assigns vehicle & driver → Driver sees → marks Ongoing/Completed |
+| 6 | Passenger manifest | Text field for passenger names (not just count) |
+| 7 | Notifications | Supabase Realtime `.stream()` |
+| 8 | Seed files | New corrected files |
+
+---
+
+## Role-Specific Views (RBAC Matrix)
+
+| Role | Bottom Nav Tabs | Sidebar Extras | Dashboard Shows |
+|------|----------------|----------------|-----------------|
+| **Student/Faculty** | Home, Maintenance, Borrowing, Bookings, Profile | Travel Requests, Notifications | My stats, quick actions, recent activity |
+| **Department Head** | Home, Maintenance, Borrowing, Bookings, Profile | Approvals, Travel, Notifications | My stats + Pending Approvals count |
+| **GSO Staff** | Home, Maintenance, Borrowing, Bookings, Profile | Inventory, Borrow Mgmt, Fleet, Travel, Users, Notifications | Full KPIs (mirrors web dashboard) |
+| **Technician** | Home, Maintenance, Borrowing*, Bookings, Profile | Travel, Notifications | Assigned tasks, completion stats (*browse-only) |
+| **Driver** | Home, My Trips, Schedule, Vehicle, Profile | Notifications | Today's trips, upcoming drives, vehicle info |
+| **Super Admin** | Home, Maintenance, Borrowing, Bookings, Profile | Everything | Full system KPIs |
+| **SSC Staff** | Home, Maintenance, Borrowing, Bookings, Profile | Booking Approvals, Notifications | Pending event bookings for approval |
+
+---
+
+## Phase 1: Critical Database & Schema Fixes
+
+### [NEW] `migrations/20260511080000_fix_schema_gaps.sql`
+```sql
+-- 1. Add 'driver' and 'ssc_staff' roles
+INSERT INTO roles (name, display_name, description, is_system, permissions) VALUES
+  ('driver', 'Driver', 'Assigned to drive university vehicles', true, '{"travel":["read_assigned","update_status"]}'),
+  ('ssc_staff', 'SSC Staff', 'Student Support Center — approves student event bookings', true, '{"bookings":["read","approve"]}')
+ON CONFLICT (name) DO NOTHING;
+
+-- 2. Add title/description to bookings
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS description TEXT;
+
+-- 3. Add passenger_names to travel_bookings
+ALTER TABLE travel_bookings ADD COLUMN IF NOT EXISTS passenger_names TEXT;
+
+-- 4. Travel booking number auto-generation
+CREATE SEQUENCE IF NOT EXISTS travel_booking_seq START 1;
+CREATE OR REPLACE FUNCTION generate_travel_booking_number()
+RETURNS TRIGGER AS $$ BEGIN
+  NEW.booking_number := 'TRV-' || EXTRACT(YEAR FROM NOW()) || '-' || LPAD(nextval('travel_booking_seq')::text, 4, '0');
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+DROP TRIGGER IF EXISTS trg_travel_booking_number ON travel_bookings;
+CREATE TRIGGER trg_travel_booking_number BEFORE INSERT ON travel_bookings
+  FOR EACH ROW WHEN (NEW.booking_number IS NULL) EXECUTE FUNCTION generate_travel_booking_number();
+
+-- 5. Fix travel RLS (drop overly permissive, add proper policies)
+DROP POLICY IF EXISTS "Users can update their own bookings" ON travel_bookings;
+CREATE POLICY "Requester can update own pending" ON travel_bookings
+  FOR UPDATE USING (auth.uid() = requester_id AND status = 'Pending');
+CREATE POLICY "Staff manage all travel" ON travel_bookings
+  FOR ALL USING (has_any_role(ARRAY['super_admin','gso_staff']));
+CREATE POLICY "Driver reads assigned trips" ON travel_bookings
+  FOR SELECT USING (auth.uid() = driver_id);
+CREATE POLICY "Driver updates assigned trips" ON travel_bookings
+  FOR UPDATE USING (auth.uid() = driver_id AND status IN ('Scheduled','Ongoing'));
+
+-- 6. SSC booking approval policy
+CREATE POLICY "SSC approves bookings" ON bookings
+  FOR UPDATE USING (has_any_role(ARRAY['super_admin','gso_staff','ssc_staff']));
+```
+
+### [NEW] `seed/006_corrected_seed.sql`
+Fixes from `004` and `005`:
+- Remove `::priority_level` casts → use plain `'High'` text
+- Change `'Pending'` → `'Pending_HOD'` for loan status
+- Add `title`/`description` to bookings INSERTs
+- Assign `driver` role to driver users (`driver.1@`, `driver.2@`)
+- Assign `ssc_staff` role to SSC user if exists
+- Add `passenger_names` to travel booking inserts
+
+### [MODIFY] `maintenance_provider.dart`
+Fix `PGRST201` — disambiguate FK hints on all `user_roles` joins:
+```diff
+-.select('*, user_roles(roles(name))')
++.select('*, user_roles!user_roles_user_id_fkey(roles(name))')
+```
+Applied to `profileProvider` and `maintenanceListProvider`.
+
+---
+
+## Phase 2: Navigation Architecture
+
+### [MODIFY] `home_shell.dart` — Major rewrite
+- Convert to `ConsumerWidget` to read `userRolesProvider`
+- **Standard users (5 tabs):** Home, Maintenance, Borrowing, Bookings, Profile
+- **Driver (5 tabs):** Home, My Trips, Schedule, Vehicle, Profile
+- Add `Drawer` via `Scaffold.drawer` property
+- AppBar shows hamburger icon (leading) + notification bell (action) with unread badge
+
+### [NEW] `features/home/widgets/app_drawer.dart`
+Hamburger sidebar widget:
+- Header: Avatar, name, email, role chips (matches web sidebar gradient)
+- Body: Role-filtered nav items mirroring web `NAV_ITEMS` array
+- Footer: Settings, Sign Out
+- Items: Home, Maintenance, Bookings, Inventory `[staff]`, Borrowing, Borrow Mgmt `[staff/HOD]`, Fleet `[staff]`, Travel, My Trips `[driver]`, Booking Approvals `[ssc]`, Reports `[staff]`, Users `[admin]`, Notifications, Profile
+
+### [MODIFY] `app_router.dart`
+Add all new routes:
+- `/home` → `HomeDashboardScreen` (not `MaintenanceListScreen`)
+- `/travel`, `/travel/new`, `/travel/:id`
+- `/driver/trips`, `/driver/trips/:id`
+- `/fleet`
+- `/borrowing/management`
+- `/inventory/:id`
+- `/admin/bookings` (SSC approval — already exists)
+- Role-based route guards in redirect
+
+---
+
+## Phase 3: Home Dashboard
+
+### [NEW] `features/home/screens/home_dashboard_screen.dart`
+Role-adaptive dashboard mirroring web `dashboard/page.tsx`:
+
+**All users:** Greeting header with avatar + quick action buttons (New Request, Browse Equipment, Book Room, Request Travel)
+
+**Student/Faculty:** My stats cards (active requests, active loans, upcoming bookings), recent own activity
+
+**GSO Staff / Super Admin:** Full KPI cards (Open Requests, Active Borrows, Overdue Items, Pending Approvals), monthly maintenance bar chart via `fl_chart`, equipment utilization donut, system-wide recent activity
+
+**Technician:** Assigned tasks count + card list, completion stats
+
+**Department Head:** Pending approvals badge + quick approve actions, department stats
+
+**Driver:** Today's trip card (destination, vehicle, departure time, "Open in Maps" button), upcoming schedule list, assigned vehicle info card
+
+### [NEW] `features/home/providers/home_provider.dart`
+- `dashboardStatsProvider` — role-aware KPI counts
+- `recentActivityProvider` — combined maintenance + loan timeline
+- `driverScheduleProvider` — driver's assigned trips
+- `technicianTasksProvider` — assigned maintenance count
+- `pendingApprovalsCountProvider` — HOD/SSC pending counts
+
+---
+
+## Phase 4: Complete Inventory & Borrowing
+
+### [MODIFY] `inventory_list_screen.dart` — Replace stub
+Full inventory browser:
+- Search bar + category filter chips (from `inventory_categories`)
+- Grid/list toggle view
+- Item cards: name, item code, condition badge, location, borrowable indicator
+- Tap → inventory detail screen
+- GSO staff: FAB to add new item
+
+### [NEW] `features/inventory/screens/inventory_detail_screen.dart`
+- Full item info (serial, model, condition, acquisition)
+- Audit log history (from `inventory_audit_log`)
+- "Reserve This Item" button (if borrowable + user is not technician)
+
+### [NEW] `features/inventory/providers/inventory_provider.dart`
+- `inventoryCatalogProvider` — all items with category/location joins
+- `inventorySearchProvider` — filtered by search + category
+- `inventoryDetailProvider(id)` — single item with audit log
+
+### [MODIFY] `borrowing_list_screen.dart` — Replace stub
+Tabbed view using `TabBar`:
+- **My Loans** tab — embeds existing `MyLoansScreen` content
+- **Browse Equipment** tab — embeds existing `BrowseEquipmentScreen` content
+- **HOD Approvals** tab `[department_head]` — embeds existing `HodApprovalScreen`
+- **GSO Management** tab `[gso_staff]` — embeds existing `GsoScanScreen`
+- Technician sees only Browse (view-only, no reserve button)
+
+### [MODIFY] `borrowing_detail_screen.dart` — Replace stub
+Full loan detail (mirrors `MaintenanceDetailScreen` pattern):
+- Item info card, borrower info, dates, quantity
+- Status timeline (from `loan_timeline` via Realtime stream)
+- Action buttons per role: HOD approve/reject, GSO release/return/inspect, Borrower cancel
+
+### [MODIFY] `borrowing_new_screen.dart` — Replace stub
+Redirect to borrowing list's "Browse Equipment" tab (the reserve flow starts from browsing)
+
+### [MODIFY] `borrowing_provider.dart`
+Add:
+- `loanDetailProvider(id)` — single loan with item, borrower, timeline joins
+- `gsoLoansProvider` — all loans for staff
+- Mutation functions: approve, reject, release, markReturned, inspect
+
+---
+
+## Phase 5: Travel & Fleet Module
+
+### New feature directory structure:
+```
+lib/features/travel/
+├── providers/travel_provider.dart
+├── screens/
+│   ├── travel_list_screen.dart
+│   ├── travel_new_screen.dart
+│   ├── travel_detail_screen.dart
+│   ├── driver_trips_screen.dart
+│   ├── driver_trip_detail_screen.dart
+│   └── fleet_management_screen.dart
+└── widgets/travel_status_badge.dart
+```
+
+### [NEW] `travel_provider.dart`
+- `myTravelBookingsProvider` — requester's bookings
+- `driverTripsProvider` — driver's assigned trips
+- `allTravelBookingsProvider` — GSO: all bookings with requester/driver/vehicle joins
+- `vehiclesProvider` — fleet list
+- `travelDetailProvider(id)` — single booking detail
+- CRUD mutations: create, approve/reject (GSO), assign vehicle+driver (GSO), start/end trip (driver)
+
+### [NEW] `travel_list_screen.dart`
+- Faculty/Student: own requests list + FAB to create new
+- GSO Staff: all requests with approve/reject/assign actions
+
+### [NEW] `travel_new_screen.dart`
+Form: destination, purpose, departure/return dates, passenger count, passenger names (multiline text), number of passengers
+
+### [NEW] `travel_detail_screen.dart`
+Full booking detail: requester, vehicle, driver, dates, destination, passengers, status. Action buttons per role.
+
+### [NEW] `driver_trips_screen.dart`
+Driver-only screen:
+- Today's trip card (prominent, with "Open in Maps" deep link via `url_launcher`)
+- Upcoming trips list
+- Past trips section
+- Actions: "Start Trip" → Ongoing, "End Trip" → Completed
+
+### [NEW] `fleet_management_screen.dart`
+GSO staff only: vehicle list with status badges, add/edit vehicle, quick status toggle
+
+---
+
+## Phase 6: Notifications with Supabase Realtime
+
+### [MODIFY] `notifications_screen.dart` — Full rewrite (currently stub)
+- `StreamProvider` using `.stream(primaryKey: ['id']).eq('user_id', uid)` for live updates
+- Grouped by date (Today, Yesterday, Earlier)
+- Unread indicator dot, swipe to mark read
+- Tap → deep link to related entity (`maintenance_request` → `/maintenance/:id`, etc.)
+- AppBar action: "Mark All as Read"
+
+### [NEW] `features/notifications/providers/notification_provider.dart`
+- `notificationsStreamProvider` — Realtime stream
+- `unreadCountProvider` — derived count for badge
+- `markAsReadProvider` / `markAllReadProvider` — mutations
+
+---
+
+## Phase 7: Polish
+
+- Shimmer loading skeletons on all list screens
+- Pull-to-refresh everywhere
+- Error states with retry buttons
+- Consistent status badge colors via `AppColors.statusColor()`
+- Empty states with descriptive messages
+- Route guards: driver can't access `/fleet`, technician can't access `/inventory` edit
+
+---
+
+## File Change Summary
+
+| Phase | New Files | Modified Files |
+|-------|-----------|---------------|
+| 1 | 2 (migration + seed) | 1 (maintenance_provider) |
+| 2 | 1 (app_drawer) | 2 (home_shell, app_router) |
+| 3 | 2 (dashboard screen + provider) | 0 |
+| 4 | 3 (inv detail, inv provider, — ) | 4 (inv list, borrow list/detail/new, borrow provider) |
+| 5 | 7 (entire travel feature) | 1 (supabase_service) |
+| 6 | 1 (notif provider) | 1 (notifications_screen) |
+| 7 | 0 | 2 (app_router final, home_shell final) |
+| **Total** | **16 new** | **11 modified** |
+
+## Verification Plan
+
+1. **Phase 1**: Launch app → maintenance list loads without `PGRST201`
+2. **Phase 2**: 5-tab nav renders, drawer opens with correct role-filtered items
+3. **Phase 3**: Dashboard shows role-appropriate KPIs
+4. **Phase 4**: Inventory loads, borrowing tabs work, loan detail renders with timeline
+5. **Phase 5**: Travel CRUD works, driver trip view shows, fleet management functional
+6. **Phase 6**: Create request on device A → notification appears on device B via realtime
+7. **Full role test**: Login as student, faculty, technician, driver, HOD, GSO, super_admin — verify each sees correct nav + dashboard
