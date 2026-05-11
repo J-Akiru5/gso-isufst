@@ -21,10 +21,9 @@ import '../../features/maintenance/screens/maintenance_new_screen.dart';
 import '../../features/inventory/screens/inventory_list_screen.dart';
 import '../../features/inventory/screens/inventory_detail_screen.dart';
 // ── Borrowing
-import '../../features/borrowing/screens/my_loans_screen.dart';
+import '../../features/borrowing/screens/borrowing_list_screen.dart';
 import '../../features/borrowing/screens/loan_detail_screen.dart';
 import '../../features/borrowing/screens/borrow_request_screen.dart';
-import '../../features/borrowing/screens/borrow_management_screen.dart';
 // ── Bookings
 import '../../features/bookings/screens/booking_list_screen.dart';
 import '../../features/bookings/screens/booking_new_screen.dart';
@@ -217,7 +216,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           // ── Borrowing ───────────────────────────────────────
           GoRoute(
             path: '/borrowing',
-            builder: (_, __) => const MyLoansScreen(),
+            builder: (_, __) => const BorrowingRootScreen(),
             routes: [
               GoRoute(
                 path: 'new',
@@ -225,10 +224,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   final itemId = state.uri.queryParameters['itemId'] ?? '';
                   return BorrowRequestScreen(itemId: itemId);
                 },
-              ),
-              GoRoute(
-                path: 'management',
-                builder: (_, __) => const BorrowManagementScreen(),
               ),
               GoRoute(
                 path: ':id',

@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:mobile_app/features/borrowing/providers/borrowing_provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/tokens/app_colors.dart';
+import '../../inventory/providers/inventory_provider.dart';
+import '../providers/borrowing_provider.dart';
 
 class ReserveItemScreen extends ConsumerStatefulWidget {
   final String id;
@@ -51,7 +52,7 @@ class _ReserveItemScreenState extends ConsumerState<ReserveItemScreen> {
       });
 
       if (mounted) {
-        ref.refresh(inventoryProvider);
+        ref.refresh(inventoryItemsProvider);
         ref.refresh(myLoansProvider);
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -96,7 +97,7 @@ class _ReserveItemScreenState extends ConsumerState<ReserveItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final detailAsync = ref.watch(inventoryDetailProvider(widget.id));
+    final detailAsync = ref.watch(inventoryItemDetailProvider(widget.id));
 
     return Scaffold(
       appBar: AppBar(
@@ -130,7 +131,7 @@ class _ReserveItemScreenState extends ConsumerState<ReserveItemScreen> {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: item['image_url'] != null
-                      ? CachedNetworkImage(imageUrl: item['image_url'], fit: BoxFit.cover)
+                      ? Image.network(item['image_url'], fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.inventory_2_outlined, color: Colors.grey))
                       : const Icon(Icons.inventory_2_outlined, color: Colors.grey),
                 ),
                 const SizedBox(width: 16),

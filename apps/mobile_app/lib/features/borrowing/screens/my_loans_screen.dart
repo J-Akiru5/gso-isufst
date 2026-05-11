@@ -1,8 +1,13 @@
+// This file is no longer used as the primary My Loans UI.
+// The My Loans tab is now embedded in BorrowingRootScreen.
+// Kept as a standalone screen for any future deep-link use.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:shimmer/shimmer.dart';
+import '../../../core/tokens/app_colors.dart';
 import '../providers/borrowing_provider.dart';
 
 class MyLoansScreen extends ConsumerWidget {
@@ -13,13 +18,8 @@ class MyLoansScreen extends ConsumerWidget {
     final loansAsync = ref.watch(myLoansProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('My Borrowed Items', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.neutral900)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: false,
-      ),
+      backgroundColor: AppColors.neutral50,
+      appBar: AppBar(title: const Text('My Borrowed Items')),
       body: RefreshIndicator(
         onRefresh: () async => ref.refresh(myLoansProvider),
         child: loansAsync.when(
@@ -29,12 +29,18 @@ class MyLoansScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.history_outlined, size: 64, color: AppColors.neutral300),
-                    const SizedBox(height: 16),
-                    const Text('No borrowing history yet', style: TextStyle(color: AppColors.neutral500)),
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: const BoxDecoration(color: AppColors.neutral100, shape: BoxShape.circle),
+                      child: const Icon(Icons.history_outlined, size: 40, color: AppColors.neutral400),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text('No borrowing history', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 8),
+                    const Text('Browse the inventory to request items.', style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: () => context.go('/inventory'),
+                      onPressed: () => context.go('/borrowing'),
                       child: const Text('Browse Inventory'),
                     ),
                   ],
@@ -44,105 +50,87 @@ class MyLoansScreen extends ConsumerWidget {
             return ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: loans.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final loan = loans[index];
-                return _LoanListItem(loan: loan);
+                final item = loan['item'] as Map?;
+                final status = loan['status'] as String? ?? 'Pending';
+                final date = DateTime.tryParse(loan['created_at'] ?? '');
+                final color = AppColors.statusColor(status);
+
+                return Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  child: InkWell(
+                    onTap: () => context.push('/borrowing/${loan['id']}'),
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.neutral200),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: AppColors.neutral100,
+                              borderRadius: BorderRadius.circular(10),
+                              image: item?['image_url'] != null
+                                  ? DecorationImage(image: NetworkImage(item!['image_url']), fit: BoxFit.cover)
+                                  : null,
+                            ),
+                            child: item?['image_url'] == null
+                                ? const Icon(Icons.inventory_2, size: 24, color: AppColors.neutral400)
+                                : null,
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(item?['name'] ?? 'Item', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                                Text(
+                                  date != null ? DateFormat('MMM d, y').format(date) : '—',
+                                  style: const TextStyle(fontSize: 11, color: AppColors.neutral500),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: color.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: color.withOpacity(0.3)),
+                            ),
+                            child: Text(status.replaceAll('_', ' '), style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => Shimmer.fromColors(
+            baseColor: AppColors.neutral200,
+            highlightColor: AppColors.neutral100,
+            child: ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: 5,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, __) => Container(
+                height: 80,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+              ),
+            ),
+          ),
           error: (e, _) => Center(child: Text('Error: $e')),
         ),
-      ),
-    );
-  }
-}
-
-class _LoanListItem extends StatelessWidget {
-  final dynamic loan;
-  const _LoanListItem({required this.loan});
-
-  @override
-  Widget build(BuildContext context) {
-    final item = loan['item'];
-    final status = loan['status'] ?? 'Pending';
-    final date = DateTime.tryParse(loan['created_at'] ?? '');
-    final dateStr = date != null ? DateFormat('MMM dd, yyyy').format(date) : 'Unknown date';
-
-    return InkWell(
-      onTap: () => context.push('/borrowing/${loan['id']}'),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.neutral200),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.neutral100,
-                borderRadius: BorderRadius.circular(8),
-                image: item['image_url'] != null
-                    ? DecorationImage(image: NetworkImage(item['image_url']), fit: BoxFit.cover)
-                    : null,
-              ),
-              child: item['image_url'] == null ? const Icon(Icons.inventory_2, color: AppColors.neutral400) : null,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item['name'] ?? 'Item', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                  Text('Requested on $dateStr', style: const TextStyle(fontSize: 12, color: AppColors.neutral500)),
-                ],
-              ),
-            ),
-            _StatusChip(status: status),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final String status;
-  const _StatusChip({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    Color color = AppColors.neutral500;
-    Color bgColor = AppColors.neutral100;
-
-    if (status.contains('Approved')) {
-      color = AppColors.success600;
-      bgColor = AppColors.success50;
-    } else if (status.contains('Pending')) {
-      color = AppColors.primary600;
-      bgColor = AppColors.primary50;
-    } else if (status.contains('Rejected') || status.contains('Cancelled')) {
-      color = AppColors.statusUrgent;
-      bgColor = AppColors.statusUrgent.withOpacity(0.1);
-    } else if (status == 'Released' || status == 'In_Use') {
-      color = Colors.blue;
-      bgColor = Colors.blue.withOpacity(0.1);
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        status.replaceAll('_', ' '),
-        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }

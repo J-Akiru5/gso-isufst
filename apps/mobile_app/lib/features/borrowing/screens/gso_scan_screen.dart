@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:mobile_app/features/borrowing/providers/borrowing_provider.dart';
+import '../../../core/tokens/app_colors.dart';
+import '../../inventory/providers/inventory_provider.dart';
 
 class GsoScanScreen extends ConsumerStatefulWidget {
   const GsoScanScreen({super.key});
@@ -74,7 +75,7 @@ class _GsoScanScreenState extends ConsumerState<GsoScanScreen> {
           _scannedLoan = null;
           _codeController.clear();
         });
-        ref.refresh(inventoryProvider);
+        ref.refresh(inventoryItemsProvider);
       }
     } catch (e) {
       if (mounted) {

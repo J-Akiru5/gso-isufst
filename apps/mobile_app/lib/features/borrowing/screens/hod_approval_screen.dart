@@ -1,119 +1,101 @@
+// Legacy HOD Approval Screen — now superseded by BorrowingRootScreen Approvals tab.
+// Kept to avoid dead import references. References pendingApprovalsProvider.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:mobile_app/features/borrowing/providers/borrowing_provider.dart';
+import '../../../core/tokens/app_colors.dart';
+import '../providers/borrowing_provider.dart';
 
-class HodLoanApprovalScreen extends ConsumerStatefulWidget {
+class HodLoanApprovalScreen extends ConsumerWidget {
   const HodLoanApprovalScreen({super.key});
 
   @override
-  ConsumerState<HodLoanApprovalScreen> createState() => _HodLoanApprovalScreenState();
-}
-
-class _HodLoanApprovalScreenState extends ConsumerState<HodLoanApprovalScreen> {
-  bool _isSubmitting = false;
-
-  Future<void> _updateStatus(String loanId, String newStatus) async {
-    setState(() => _isSubmitting = true);
-    try {
-      final supabase = Supabase.instance.client;
-      
-      await supabase.from('equipment_loans').update({
-        'status': newStatus,
-      }).eq('id', loanId);
-
-      if (mounted) {
-        ref.refresh(pendingHODLoansProvider);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Loan request ${newStatus == 'Approved' ? 'approved' : 'rejected'}')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final pendingAsync = ref.watch(pendingHODLoansProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pendingAsync = ref.watch(pendingApprovalsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pending Loan Approvals'),
-      ),
+      appBar: AppBar(title: const Text('Pending HOD Approvals')),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(pendingHODLoansProvider.future),
+        onRefresh: () async => ref.refresh(pendingApprovalsProvider),
         child: pendingAsync.when(
           data: (loans) {
             if (loans.isEmpty) {
-              return const Center(child: Text('No pending approvals at the moment.'));
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle_outline, size: 64, color: AppColors.statusCompleted),
+                    SizedBox(height: 16),
+                    Text('No pending approvals', style: TextStyle(color: AppColors.neutral500)),
+                  ],
+                ),
+              );
             }
-            return ListView.builder(
+            return ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: loans.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final loan = loans[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          loan['item']?['name'] ?? 'Unknown Item',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        const SizedBox(height: 8),
-                        Text('Borrower: ${loan['borrower']?['full_name']}'),
-                        Text('Quantity: ${loan['quantity_borrowed']}'),
-                        Text('Purpose: ${loan['purpose'] ?? 'N/A'}'),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text('Pickup: ${DateFormat('MMM d').format(DateTime.parse(loan['expected_pickup_date']))}', style: const TextStyle(fontSize: 12)),
-                            const SizedBox(width: 16),
-                            Text('Return: ${DateFormat('MMM d').format(DateTime.parse(loan['expected_return_date']))}', style: const TextStyle(fontSize: 12)),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: _isSubmitting ? null : () => _updateStatus(loan['id'], 'Rejected'),
-                                style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-                                child: const Text('Reject'),
+                final item = loan['item'] as Map?;
+                final borrower = loan['borrower'] as Map?;
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.neutral200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item?['name'] ?? 'Item', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text('By: ${borrower?['full_name'] ?? 'Unknown'}', style: const TextStyle(color: AppColors.neutral600, fontSize: 13)),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () async {
+                                await ref.read(updateLoanStatusProvider({'id': loan['id'], 'status': 'HOD_Rejected'}).future);
+                                ref.refresh(pendingApprovalsProvider);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.statusRejected,
+                                side: const BorderSide(color: AppColors.statusRejected),
+                                minimumSize: const Size(0, 40),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
+                              child: const Text('Reject'),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: _isSubmitting ? null : () => _updateStatus(loan['id'], 'Approved'),
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                                child: const Text('Approve'),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                await ref.read(updateLoanStatusProvider({'id': loan['id'], 'status': 'HOD_Approved'}).future);
+                                ref.refresh(pendingApprovalsProvider);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.statusCompleted,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(0, 40),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
+                              child: const Text('Approve'),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 );
               },
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('Error: $err')),
+          error: (e, _) => Center(child: Text('Error: $e')),
         ),
       ),
     );

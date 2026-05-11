@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/tokens/app_colors.dart';
 import '../providers/inventory_provider.dart';
 
 class InventoryDetailScreen extends ConsumerWidget {
@@ -20,7 +20,7 @@ class InventoryDetailScreen extends ConsumerWidget {
             SliverAppBar(
               expandedHeight: 250,
               pinned: true,
-              backgroundColor: AppColors.primary600,
+              backgroundColor: AppColors.primary,
               flexibleSpace: FlexibleSpaceBar(
                 background: item['image_url'] != null
                     ? Image.network(item['image_url'], fit: BoxFit.cover)
@@ -98,7 +98,7 @@ class InventoryDetailScreen extends ConsumerWidget {
                 child: ElevatedButton(
                   onPressed: () => context.push('/borrowing/new?itemId=$id'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary600,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 56),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -125,14 +125,14 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isAvailable ? AppColors.success50.withOpacity(0.5) : AppColors.statusUrgent.withOpacity(0.1),
+        color: isAvailable ? AppColors.statusCompleted.withOpacity(0.1) : AppColors.statusRejected.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isAvailable ? AppColors.success600 : AppColors.statusUrgent),
+        border: Border.all(color: isAvailable ? AppColors.statusCompleted : AppColors.statusRejected),
       ),
       child: Text(
         isAvailable ? 'AVAILABLE ($available)' : 'OUT OF STOCK',
         style: TextStyle(
-          color: isAvailable ? AppColors.success700 : AppColors.statusUrgent,
+          color: isAvailable ? AppColors.statusCompleted : AppColors.statusRejected,
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),

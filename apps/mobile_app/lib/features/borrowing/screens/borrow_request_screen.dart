@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/tokens/app_colors.dart';
 import '../../inventory/providers/inventory_provider.dart';
 import '../providers/borrowing_provider.dart';
 
@@ -61,13 +61,13 @@ class _BorrowRequestScreenState extends ConsumerState<BorrowRequestScreen> {
         ref.refresh(myLoansProvider);
         context.go('/borrowing');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Borrow request submitted successfully!'), backgroundColor: AppColors.success600),
+           SnackBar(content: Text('Borrow request submitted!'), backgroundColor: AppColors.statusCompleted),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.statusUrgent),
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.statusRejected),
         );
       }
     } finally {
@@ -220,7 +220,7 @@ class _BorrowRequestScreenState extends ConsumerState<BorrowRequestScreen> {
                 ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary600,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 56),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

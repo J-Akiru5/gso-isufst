@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/tokens/app_colors.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/home_provider.dart';
@@ -291,15 +292,15 @@ class _StandardDashboard extends ConsumerWidget {
                 const _EmptyDashboard()
               else ...[
                 if (maintenance.isNotEmpty) ...[
-                  const _SectionHeader(title: 'Recent Maintenance', actionLabel: 'View all', onAction: () => context.go('/maintenance')),
+                  _SectionHeader(title: 'Recent Maintenance', actionLabel: 'View all', onAction: () => context.go('/maintenance')),
                   ...maintenance.map((m) => _ActivityTile(icon: Icons.build_outlined, title: m['title'] ?? 'Request', subtitle: m['status'] ?? '', color: AppColors.statusPending)),
                 ],
                 if (loans.isNotEmpty) ...[
-                  const _SectionHeader(title: 'Active Loans', actionLabel: 'View all', onAction: () => context.go('/borrowing')),
+                  _SectionHeader(title: 'Active Loans', actionLabel: 'View all', onAction: () => context.go('/borrowing')),
                   ...loans.map((l) => _ActivityTile(icon: Icons.assignment_outlined, title: l['loan_number'] ?? 'Loan', subtitle: l['status'] ?? '', color: AppColors.secondary)),
                 ],
                 if (bookings.isNotEmpty) ...[
-                  const _SectionHeader(title: 'Upcoming Bookings', actionLabel: 'View all', onAction: () => context.go('/bookings')),
+                  _SectionHeader(title: 'Upcoming Bookings', actionLabel: 'View all', onAction: () => context.go('/bookings')),
                   ...bookings.map((b) => _ActivityTile(icon: Icons.meeting_room_outlined, title: b['title'] ?? 'Booking', subtitle: DateFormat('MMM d, h:mm a').format(DateTime.parse(b['start_time'])), color: AppColors.statusCompleted)),
                 ],
               ],
@@ -411,7 +412,7 @@ class _GsoDashboard extends ConsumerWidget {
               ],
             )),
             if ((s['recentMaintenance'] as List).isNotEmpty) ...[
-              const _SectionHeader(title: 'Recent Requests', actionLabel: 'View all', onAction: () => context.go('/maintenance')),
+              _SectionHeader(title: 'Recent Requests', actionLabel: 'View all', onAction: () => context.go('/maintenance')),
               ...(s['recentMaintenance'] as List).map((m) => _ActivityTile(
                 icon: Icons.build_outlined,
                 title: m['title'] ?? 'Request',
@@ -456,7 +457,7 @@ class _DriverDashboard extends ConsumerWidget {
                 Expanded(child: _StatCard(label: 'Upcoming', value: '${upcoming.length}', icon: Icons.schedule, color: AppColors.statusPending)),
               ])),
               if (upcoming.isNotEmpty) ...[
-                const _SectionHeader(title: 'Upcoming Trips', actionLabel: 'View all', onAction: () => context.go('/driver/trips')),
+                _SectionHeader(title: 'Upcoming Trips', actionLabel: 'View all', onAction: () => context.go('/driver/trips')),
                 ...upcoming.map((t) => _UpcomingTripTile(trip: t)),
               ] else if (todayTrip == null) ...[
                 const SizedBox(height: 20),

@@ -21,13 +21,12 @@ final unreadNotificationsCountProvider = StreamProvider<int>((ref) {
   
   if (userId == null) return Stream.value(0);
 
-  // Initial count fetch + realtime updates
+  // SupabaseStreamBuilder only supports one .eq() — use .match() for multiple filters
   return supabase
       .from('notifications')
       .stream(primaryKey: ['id'])
       .eq('user_id', userId)
-      .eq('is_read', false)
-      .map((events) => events.length);
+      .map((events) => events.where((e) => e['is_read'] == false).length);
 });
 
 // Stream for realtime notifications list

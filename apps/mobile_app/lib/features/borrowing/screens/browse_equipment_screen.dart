@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/features/borrowing/providers/borrowing_provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/tokens/app_colors.dart';
+import '../../inventory/providers/inventory_provider.dart';
 
 class BrowseEquipmentScreen extends ConsumerWidget {
   const BrowseEquipmentScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final inventoryAsync = ref.watch(inventoryProvider);
+    final inventoryAsync = ref.watch(borrowableItemsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Browse Equipment'),
-      ),
+      appBar: AppBar(title: const Text('Browse Equipment')),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(inventoryProvider.future),
+        onRefresh: () => ref.refresh(borrowableItemsProvider.future),
         child: inventoryAsync.when(
           data: (items) {
             if (items.isEmpty) {
@@ -62,7 +60,7 @@ class _EquipmentCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.push('/borrowing/reserve/${item['id']}'),
+        onTap: () => context.push('/borrowing/new?itemId=${item['id']}'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -71,10 +69,7 @@ class _EquipmentCard extends StatelessWidget {
                 width: double.infinity,
                 color: Colors.grey[100],
                 child: item['image_url'] != null
-                    ? CachedNetworkImage(
-                        imageUrl: item['image_url'],
-                        fit: BoxFit.cover,
-                      )
+                    ? Image.network(item['image_url'], fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey))
                     : const Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
               ),
             ),
@@ -105,7 +100,7 @@ class _EquipmentCard extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: available > 0 ? Colors.green : Colors.red,
+                          color: available > 0 ? AppColors.statusCompleted : AppColors.statusRejected,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -114,7 +109,7 @@ class _EquipmentCard extends StatelessWidget {
                         available > 0 ? '$available Available' : 'Out of Stock',
                         style: TextStyle(
                           fontSize: 12,
-                          color: available > 0 ? Colors.green[700] : Colors.red[700],
+                          color: available > 0 ? AppColors.statusCompleted : AppColors.statusRejected,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

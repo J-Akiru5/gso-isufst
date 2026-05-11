@@ -50,7 +50,7 @@ class HomeShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDriver = ref.watch(isDriverProvider);
     final rolesAsync = ref.watch(userRolesProvider);
-    final unreadCount = ref.watch(_unreadCountProvider);
+    final unreadCount = ref.watch(_unreadCountProvider).valueOrNull ?? 0;
 
     // Determine which tab set to use
     final tabs = rolesAsync.when(
