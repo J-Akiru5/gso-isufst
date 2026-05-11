@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/tokens/app_colors.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../notifications/providers/notification_provider.dart';
 import '../widgets/app_drawer.dart';
 
 // ── Tab Definition ──────────────────────────────────────────────
@@ -50,7 +50,7 @@ class HomeShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDriver = ref.watch(isDriverProvider);
     final rolesAsync = ref.watch(userRolesProvider);
-    final unreadCount = ref.watch(_unreadCountProvider).valueOrNull ?? 0;
+    final unreadCount = ref.watch(unreadCountProvider);
 
     // Determine which tab set to use
     final tabs = rolesAsync.when(
@@ -211,18 +211,3 @@ class HomeShell extends ConsumerWidget {
     return 0;
   }
 }
-
-// ── Unread Notification Count Provider ───────────────────────────
-
-final _unreadCountProvider = StreamProvider.autoDispose<int>((ref) {
-  final user = ref.watch(authProvider).valueOrNull;
-  if (user == null) return Stream.value(0);
-
-  return Supabase.instance.client
-      .from('notifications')
-      .stream(primaryKey: ['id'])
-      .eq('user_id', user.id)
-      .map((rows) => rows.where((r) => r['is_read'] == false).length);
-});
-
-// ignore: avoid_annotating_with_dynamic
