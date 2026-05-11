@@ -28,6 +28,15 @@ import '../../features/borrowing/screens/borrow_request_screen.dart';
 import '../../features/bookings/screens/booking_list_screen.dart';
 import '../../features/bookings/screens/booking_new_screen.dart';
 import '../../features/bookings/screens/ssc_booking_admin_screen.dart';
+// ── Travel & Fleet
+import '../../features/travel/screens/travel_list_screen.dart';
+import '../../features/travel/screens/travel_new_screen.dart';
+import '../../features/travel/screens/travel_detail_screen.dart';
+import '../../features/travel/screens/driver_trips_screen.dart';
+import '../../features/travel/screens/driver_trip_detail_screen.dart';
+import '../../features/travel/screens/driver_schedule_screen.dart';
+import '../../features/travel/screens/driver_vehicle_screen.dart';
+import '../../features/travel/screens/fleet_management_screen.dart';
 // ── Profile & Notifications
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
@@ -249,18 +258,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           // ── Travel Requests ─────────────────────────────────
           GoRoute(
             path: '/travel',
-            builder: (_, __) =>
-                const _PlaceholderScreen(title: 'Travel Requests'),
+            builder: (_, __) => const TravelListScreen(),
             routes: [
               GoRoute(
                 path: 'new',
-                builder: (_, __) =>
-                    const _PlaceholderScreen(title: 'New Travel Request'),
+                builder: (_, __) => const TravelNewScreen(),
               ),
               GoRoute(
                 path: ':id',
-                builder: (_, state) => _PlaceholderScreen(
-                  title: 'Travel Request ${state.pathParameters['id']}',
+                builder: (_, state) => TravelDetailScreen(
+                  id: state.pathParameters['id']!,
                 ),
               ),
             ],
@@ -269,33 +276,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           // ── Driver Routes ────────────────────────────────────
           GoRoute(
             path: '/driver/trips',
-            builder: (_, __) =>
-                const _PlaceholderScreen(title: 'My Trips'),
+            builder: (_, __) => const DriverTripsScreen(),
             routes: [
               GoRoute(
                 path: ':id',
-                builder: (_, state) => _PlaceholderScreen(
-                  title: 'Trip ${state.pathParameters['id']}',
+                builder: (_, state) => DriverTripDetailScreen(
+                  id: state.pathParameters['id']!,
                 ),
               ),
             ],
           ),
           GoRoute(
             path: '/driver/schedule',
-            builder: (_, __) =>
-                const _PlaceholderScreen(title: 'My Schedule'),
+            builder: (_, __) => const DriverScheduleScreen(),
           ),
           GoRoute(
             path: '/driver/vehicle',
-            builder: (_, __) =>
-                const _PlaceholderScreen(title: 'My Vehicle'),
+            builder: (_, __) => const DriverVehicleScreen(),
           ),
 
           // ── Fleet Management ─────────────────────────────────
           GoRoute(
             path: '/fleet',
-            builder: (_, __) =>
-                const _PlaceholderScreen(title: 'Fleet Management'),
+            builder: (_, __) => const FleetManagementScreen(),
           ),
 
           // ── Admin / SSC ──────────────────────────────────────
