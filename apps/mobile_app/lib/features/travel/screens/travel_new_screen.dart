@@ -117,11 +117,12 @@ class _TravelNewScreenState extends ConsumerState<TravelNewScreen> {
 
   Future<void> _pickDateTime({required bool isDeparture}) async {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final date = await showDatePicker(
       context: context,
-      firstDate: now,
+      firstDate: today,
       lastDate: DateTime(now.year + 3),
-      initialDate: now,
+      initialDate: today,
     );
     if (date == null || !mounted) return;
     final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
@@ -153,8 +154,7 @@ class _TravelNewScreenState extends ConsumerState<TravelNewScreen> {
       );
       return;
     }
-    if (_return!.isBefore(_departure!) ||
-        _return!.isAtSameMomentAs(_departure!)) {
+    if (!_return!.isAfter(_departure!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Return time must be after departure time.')),
       );

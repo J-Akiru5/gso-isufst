@@ -202,6 +202,13 @@ class _TravelDetailScreenState extends ConsumerState<TravelDetailScreen> {
 
   String _vehicleLabel(dynamic vehicle) {
     if (vehicle is! Map) return '-';
-    return '${vehicle['plate_number'] ?? '-'} • ${vehicle['brand'] ?? ''} ${vehicle['model'] ?? ''}'.trim();
+    final plate = vehicle['plate_number']?.toString().trim() ?? '';
+    final brand = vehicle['brand']?.toString().trim() ?? '';
+    final model = vehicle['model']?.toString().trim() ?? '';
+    final brandModel = [brand, model].where((v) => v.isNotEmpty).join(' ');
+    if (plate.isNotEmpty && brandModel.isNotEmpty) return '$plate • $brandModel';
+    if (plate.isNotEmpty) return plate;
+    if (brandModel.isNotEmpty) return brandModel;
+    return '-';
   }
 }
