@@ -118,4 +118,123 @@ class SupabaseService {
     await client.storage.from('booking_attachments').upload(filePath, File(path));
     return client.storage.from('booking_attachments').getPublicUrl(filePath);
   }
+
+  // ── Travel ─────────────────────────────────────────────────────
+  static Future<List<Map<String, dynamic>>> getMyTravelBookings(String userId) async {
+    final res = await client
+        .from('travel_bookings')
+        .select(
+          '*,'
+          'requester:profiles!travel_bookings_requester_id_fkey(full_name),'
+          'driver:profiles!travel_bookings_driver_id_fkey(full_name),'
+          'vehicle:vehicles(plate_number, brand, model)',
+        )
+        .eq('requester_id', userId)
+        .order('created_at', ascending: false);
+    return (res as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  static Future<List<Map<String, dynamic>>> getAllTravelBookings() async {
+    final res = await client
+        .from('travel_bookings')
+        .select(
+          '*,'
+          'requester:profiles!travel_bookings_requester_id_fkey(full_name),'
+          'driver:profiles!travel_bookings_driver_id_fkey(full_name),'
+          'vehicle:vehicles(plate_number, brand, model)',
+        )
+        .order('created_at', ascending: false);
+    return (res as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  static Future<List<Map<String, dynamic>>> getDriverTrips(String driverId) async {
+    final res = await client
+        .from('travel_bookings')
+        .select(
+          '*,'
+          'requester:profiles!travel_bookings_requester_id_fkey(full_name),'
+          'driver:profiles!travel_bookings_driver_id_fkey(full_name),'
+          'vehicle:vehicles(plate_number, brand, model)',
+        )
+        .eq('driver_id', driverId)
+        .order('departure_time', ascending: true);
+    return (res as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  static Future<Map<String, dynamic>> getTravelBooking(String bookingId) async {
+    final res = await client
+        .from('travel_bookings')
+        .select(
+          '*,'
+          'requester:profiles!travel_bookings_requester_id_fkey(full_name, email, phone),'
+          'driver:profiles!travel_bookings_driver_id_fkey(full_name, email, phone),'
+          'vehicle:vehicles(plate_number, brand, model, status)',
+        )
+        .eq('id', bookingId)
+        .single();
+    return Map<String, dynamic>.from(res as Map);
+  }
+
+  static Future<String> createTravelBooking(Map<String, dynamic> payload) async {
+    final res = await client
+        .from('travel_bookings')
+        .insert(payload)
+        .select('id')
+        .single();
+    return (res as Map)['id'].toString();
+  }
+
+  static Future<void> updateTravelBookingStatus({
+    required String bookingId,
+    required String status,
+  }) async {
+    await client.from('travel_bookings').update({'status': status}).eq('id', bookingId);
+  }
+
+  static Future<void> assignTravelBooking({
+    required String bookingId,
+    String? driverId,
+    String? vehicleId,
+  }) async {
+    final update = <String, dynamic>{};
+    if (driverId != null && driverId.isNotEmpty) update['driver_id'] = driverId;
+    if (vehicleId != null && vehicleId.isNotEmpty) update['vehicle_id'] = vehicleId;
+    update['status'] = 'Scheduled';
+    await client.from('travel_bookings').update(update).eq('id', bookingId);
+  }
+
+  // ── Fleet ──────────────────────────────────────────────────────
+  static Future<List<Map<String, dynamic>>> getVehicles() async {
+    final res = await client.from('vehicles').select('*').order('plate_number', ascending: true);
+    return (res as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  static Future<void> upsertVehicle(Map<String, dynamic> payload) async {
+    await client.from('vehicles').upsert(payload);
+  }
+
+  static Future<void> updateVehicleStatus({
+    required String vehicleId,
+    required String status,
+  }) async {
+    await client.from('vehicles').update({'status': status}).eq('id', vehicleId);
+  }
+
+  static Future<List<Map<String, dynamic>>> getDriverProfiles() async {
+    final roleRows = await client
+        .from('user_roles')
+        .select('user_id, role:roles(name)')
+        .eq('role.name', 'driver');
+    final ids = (roleRows as List)
+        .map((e) => (e as Map)['user_id']?.toString())
+        .whereType<String>()
+        .toList();
+    if (ids.isEmpty) return [];
+    final profiles = await client
+        .from('profiles')
+        .select('id, full_name, email')
+        .inFilter('id', ids)
+        .order('full_name', ascending: true);
+    return (profiles as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
 }
