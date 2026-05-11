@@ -196,9 +196,12 @@ class SupabaseService {
     String? driverId,
     String? vehicleId,
   }) async {
+    if (driverId == null || driverId.isEmpty || vehicleId == null || vehicleId.isEmpty) {
+      throw Exception('Driver and vehicle are both required for assignment.');
+    }
     final update = <String, dynamic>{};
-    if (driverId != null && driverId.isNotEmpty) update['driver_id'] = driverId;
-    if (vehicleId != null && vehicleId.isNotEmpty) update['vehicle_id'] = vehicleId;
+    update['driver_id'] = driverId;
+    update['vehicle_id'] = vehicleId;
     update['status'] = 'Scheduled';
     await client.from('travel_bookings').update(update).eq('id', bookingId);
   }
